@@ -2,7 +2,7 @@
 
 UUID = extensions-sync@elhan.io
 BASE_MODULES = extension.js stylesheet.css metadata.json LICENSE.md README.md
-EXTRA_MODULES = 
+EXTRA_MODULES = utils.js
 TOLOCALIZE =  
 INSTALLBASE = ~/.local/share/gnome-shell/extensions
 INSTALLNAME = extensions-sync@elhan.io
@@ -18,6 +18,15 @@ extension: ./schemas/gschemas.compiled
 	glib-compile-schemas ./schemas/
 
 install: install-local
+
+enable:
+	gnome-shell-extension-tool -e $(UUID)
+
+disable:
+	gnome-shell-extension-tool -d $(UUID)
+
+reload:
+	gnome-shell-extension-tool -r $(UUID)
 
 install-local: _build
 	rm -rf $(INSTALLBASE)/$(INSTALLNAME)

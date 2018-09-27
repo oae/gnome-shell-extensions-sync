@@ -1,0 +1,55 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Reload All",
+            "type": "shell",
+            "command": "make install; make reload; busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart(\"Restarting…\")'",
+            "problemMatcher": [],
+            "presentation": {
+                "echo": false,
+                "reveal": "never",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true
+            }
+        },
+        {
+            "label": "Watch Logs",
+            "type": "shell",
+            "command": "journalctl /usr/bin/gnome-shell -f -o cat | grep \"\\[extensions-sync\\]\"",
+            "problemMatcher": []
+        },
+        {
+            "label": "Install Extension",
+            "type": "shell",
+            "command": "make install",
+            "problemMatcher": []
+        },
+        {
+            "label": "Enable Extension",
+            "type": "shell",
+            "command": "make enable",
+            "problemMatcher": []
+        },
+        {
+            "label": "Disable Extension",
+            "type": "shell",
+            "command": "make disable"
+        },
+        {
+            "label": "Reload Extension",
+            "type": "shell",
+            "command": "make reload",
+            "problemMatcher": []
+        },
+        {
+            "label": "Reload Gnome Shell",
+            "type": "shell",
+            "command": "busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart(\"Restarting…\")'",
+            "problemMatcher": []
+        }
+    ]
+}
