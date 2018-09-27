@@ -1,20 +1,20 @@
 # Basic Makefile
 
-UUID = extensions-sync@unknownapp.com
+UUID = extensions-sync@elhan.io
 BASE_MODULES = extension.js stylesheet.css metadata.json LICENSE.md README.md
 EXTRA_MODULES = 
 TOLOCALIZE =  
 INSTALLBASE = ~/.local/share/gnome-shell/extensions
-INSTALLNAME = extensions-sync@unknownapp.com
+INSTALLNAME = extensions-sync@elhan.io
 
 all: extension
 
 clean:
 	rm -f ./schemas/gschemas.compiled
 
-extension: ./schemas/gschemas.compiled
+extension: compile-schema
 
-./schemas/gschemas.compiled: ./schemas/org.gnome.shell.extensions.extensions-sync.gschema.xml
+compile-schema: ./schemas/org.gnome.shell.extensions.extensions-sync.gschema.xml
 	glib-compile-schemas ./schemas/
 
 install: install-local
