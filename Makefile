@@ -12,9 +12,9 @@ all: extension
 clean:
 	rm -f ./schemas/gschemas.compiled
 
-extension: compile-schema
+extension: ./schemas/gschemas.compiled
 
-compile-schema: ./schemas/org.gnome.shell.extensions.extensions-sync.gschema.xml
+./schemas/gschemas.compiled: ./schemas/org.gnome.shell.extensions.extensions-sync.gschema.xml
 	glib-compile-schemas ./schemas/
 
 install: install-local
