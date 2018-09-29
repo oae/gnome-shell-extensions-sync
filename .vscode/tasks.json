@@ -6,7 +6,7 @@
         {
             "label": "Reload All",
             "type": "shell",
-            "command": "make install; make reload; busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart(\"Restarting…\")'",
+            "command": "make install; busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart(\"Restarting…\")'",
             "problemMatcher": [],
             "presentation": {
                 "echo": false,
