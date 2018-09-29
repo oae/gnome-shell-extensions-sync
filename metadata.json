@@ -12,7 +12,7 @@
         "3.28",
         "3.30"
     ],
-    "url": "https://github.com/oae/extensions-sync",
+    "url": "https://github.com/oae/gnome-shell-extensions-sync",
     "gettext-domain": "extensions-sync",
     "version": 9999
 }
