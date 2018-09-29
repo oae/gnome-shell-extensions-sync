@@ -20,7 +20,18 @@
     journalctl /usr/bin/gnome-shell -f -o cat | grep "\[extensions-sync\]"
     ```
 
-* External Library bindings are located in `/usr/lib/girepository-1.0;`
+* External Libraries
+
+    - Library bindings can be found in 
+        - `/usr/lib/girepository-1.0`
+        - `/usr/share/gir-1.0`
+
+    - To extract documentation from them you can use following command
+
+        ```bash
+        mkdir docs
+        g-ir-doc-tool -l gjs /usr/share/gir-1.0/libxml2-2.0.gir -o ./docs
+        ```
 
 ## Dependencies
 
