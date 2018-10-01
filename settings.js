@@ -19,12 +19,23 @@ var Settings = class Settings {
     this._initSchemaList();
   }
 
+  getSyncData() {
+    const syncData = Object.keys(this.schemaList).reduce((acc, schemaId) => {
+      const schema = this.schemaList[schemaId];
+      return Object.assign({}, acc, {
+        [schemaId]: schema.data,
+      });
+    }, {});
+
+    return syncData;
+  }
+
   startWatching() {
 
     Object.keys(this.schemaList).forEach(schemaId => {
       const schema = this.schemaList[schemaId];
-      schema.data = this._getSchemaData(schema.gSettings);
-      schema.changeHandlerId = schema.gSettings.connect('changed', () => {
+      this.schemaList[schemaId].data = this._getSchemaDataFromDconf(schema.gSettings);
+      this.schemaList[schemaId].changeHandlerId = schema.gSettings.connect('changed', () => {
         this._onSettingsChanged(schema);
       });
     });
@@ -47,7 +58,7 @@ var Settings = class Settings {
 
   _onSettingsChanged(schema) {
     debug(`extension ${this.extension.metadata.name} is modified emitting sync`);
-    schema.data = this._getSchemaData(schema.gSettings);
+    schema.data = this._getSchemaDataFromDconf(schema.gSettings);
     sync.emit('extensions-sync');
   }
 
@@ -56,7 +67,7 @@ var Settings = class Settings {
 
     this.schemaList = schemaIds.reduce((acc, schemaId) => {
       const gSettings = this._initGSettings(schemaId);
-      const data = this._getSchemaData(gSettings);
+      const data = this._getSchemaDataFromDconf(gSettings);
 
       return Object.assign({}, acc, {
         [schemaId]: {
@@ -142,10 +153,10 @@ var Settings = class Settings {
     return schemaIds;
   }
 
-  _getSchemaData(gSettings) {
+  _getSchemaDataFromDconf(gSettings) {
     const [result, stdout, stderr] = GLib.spawn_command_line_sync(`dconf dump ${gSettings.path}`);
 
-    return stdout;
+    return stdout.toString();
   }
 
 }
