@@ -9,9 +9,11 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Signals = imports.signals;
 
 const { Settings } = imports.settings;
-const { debounce, debug, getExtensionState } = imports.utils;
+const { debounce, logger, getExtensionState } = imports.utils;
 
-class Sync {
+const debug = logger('sync');
+
+var Sync = class Sync {
 
   constructor() {
     this.stateChangeHandlerId = null;
@@ -20,7 +22,7 @@ class Sync {
   }
 
   enable() {
-    debug('[sync] enabled');
+    debug('enabled');
     this._initExtensions();
 
     this.stateChangeHandlerId = ExtensionSystem.connect(
@@ -32,7 +34,7 @@ class Sync {
   }
 
   disable() {
-    debug('[sync] disabled');
+    debug('disabled');
     ExtensionSystem.disconnect(this.stateChangeHandlerId);
     this.stateChangeHandlerId = null;
 
@@ -50,12 +52,12 @@ class Sync {
   }
 
   _sync() {
-    debug('[sync] emitted sync event');
-    debug(`[sync] syncing ${Object.keys(this.syncedExtensions).length} extensions: ${Object.keys(this.syncedExtensions)}`);
+    debug('emitted sync event');
+    debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions: ${Object.keys(this.syncedExtensions)}`);
   }
 
   _onExtensionStateChanged(extension) {
-    debug(`[sync] state of ${extension.metadata.name} changed to: ${getExtensionState(extension)}`);
+    debug(`state of ${extension.metadata.name} changed to: ${getExtensionState(extension)}`);
     switch(extension.state) {
       case ExtensionSystem.ExtensionState.ENABLED: {
         this._startWatching(extension);
@@ -93,7 +95,7 @@ class Sync {
   }
 
   _startWatching(extension) {
-    debug(`[sync] started watching extension: ${extension.metadata.name}`);
+    debug(`started watching extension: ${extension.metadata.name}`);
 
     const settings = new Settings(extension);
     settings.startWatching();
@@ -107,7 +109,7 @@ class Sync {
   }
 
   _stopWatching(extension) {
-    debug(`[sync] stopped watching extension: ${extension.metadata.name}`);
+    debug(`stopped watching extension: ${extension.metadata.name}`);
 
     const syncedExtension = this.syncedExtensions[extension.metadata.uuid];
     delete this.syncedExtensions[extension.metadata.uuid];

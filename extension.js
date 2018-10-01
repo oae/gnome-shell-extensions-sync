@@ -8,8 +8,10 @@ imports.searchPath.unshift(imports.misc.extensionUtils.getCurrentExtension().pat
 
 const { Sync } = imports.sync;
 
+let sync;
 function init() {
   sync = new Sync();
+  window.sync = sync;
 }
 
 function enable() {

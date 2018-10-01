@@ -4,16 +4,18 @@
 // https://opensource.org/licenses/MIT
 
 const Gio = imports.gi.Gio;
+const GLib = imports.gi.GLib;
 const GXml = imports.gi.GXml;
 
-const { debug } = imports.utils;
+const logger = imports.utils.logger;
 
-class Settings {
+const debug = logger('settings');
+
+var Settings = class Settings {
 
   constructor(extension) {
     this.extension = extension;
     this.schemaList = {};
-
     this._initSchemaList();
   }
 
@@ -21,10 +23,13 @@ class Settings {
 
     Object.keys(this.schemaList).forEach(schemaId => {
       const schema = this.schemaList[schemaId];
-      schema.changeHandlerId = schema.gSettings.connect('changed', this._onSettingsChanged.bind(this));
+      schema.data = this._getSchemaData(schema.gSettings);
+      schema.changeHandlerId = schema.gSettings.connect('changed', () => {
+        this._onSettingsChanged(schema);
+      });
     });
 
-    debug(`[settings] started watching changes for ${this.extension.metadata.name}`);
+    debug(`started watching changes for ${this.extension.metadata.name}`);
   }
 
   stopWatching() {
@@ -33,14 +38,16 @@ class Settings {
       const schema = this.schemaList[schemaId];
       schema.gSettings.disconnect(schema.changeHandlerId);
       schema.changeHandlerId = null;
-      debug(`[settings] disconnected from ${schemaId}`);
+      schema.data = null;
+      debug(`disconnected from ${schemaId}`);
     });
 
-    debug(`[settings] stopped watching changes for ${this.extension.metadata.name}`);
+    debug(`stopped watching changes for ${this.extension.metadata.name}`);
   }
 
-  _onSettingsChanged() {
-    debug(`[settings] extension ${this.extension.metadata.name} is modified emitting sync`);
+  _onSettingsChanged(schema) {
+    debug(`extension ${this.extension.metadata.name} is modified emitting sync`);
+    schema.data = this._getSchemaData(schema.gSettings);
     sync.emit('extensions-sync');
   }
 
@@ -48,9 +55,13 @@ class Settings {
     const schemaIds = this._getSchemaIds();
 
     this.schemaList = schemaIds.reduce((acc, schemaId) => {
+      const gSettings = this._initGSettings(schemaId);
+      const data = this._getSchemaData(gSettings);
+
       return Object.assign({}, acc, {
         [schemaId]: {
-          gSettings: this._initGSettings(schemaId),
+          gSettings,
+          data,
           changeHandlerId: null,
         },
       });
@@ -124,11 +135,17 @@ class Settings {
       }
     }
     catch (e) {
-      debug(`[settings] ${schemaName} has an error ${e}`);
+      debug(`${schemaName} has an error ${e}`);
       return [];
     }
 
     return schemaIds;
+  }
+
+  _getSchemaData(gSettings) {
+    const [result, stdout, stderr] = GLib.spawn_command_line_sync(`dconf dump ${gSettings.path}`);
+
+    return stdout;
   }
 
 }
