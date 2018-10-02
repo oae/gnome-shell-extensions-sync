@@ -58,7 +58,7 @@
         "shellVersion": "gnome shell version"
       }
     },
-    "extensionSettings": {
+    "extensions": {
       "content": {
         "extension1": {
           "schema1": "schema1 settings",
