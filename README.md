@@ -58,15 +58,6 @@
         "shellVersion": "gnome shell version"
       }
     },
-    "extensions": {
-      "content": [
-        "extension1",
-        "extension2",
-        "extension3",
-        "extension4",
-        "extension5",
-      ]
-    },
     "extensionSettings": {
       "content": {
         "extension1": {
