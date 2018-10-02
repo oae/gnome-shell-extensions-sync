@@ -57,7 +57,7 @@ var Settings = class Settings {
   }
 
   _onSettingsChanged(schema) {
-    debug(`extension ${this.extension.metadata.name} is modified emitting sync`);
+    debug(`extension ${this.extension.metadata.name} is modified. emitting sync event`);
     schema.data = this._getSchemaDataFromDconf(schema.gSettings);
     sync.emit('extensions-sync');
   }

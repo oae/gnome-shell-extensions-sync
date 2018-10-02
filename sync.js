@@ -9,21 +9,30 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Signals = imports.signals;
 
 const { Settings } = imports.settings;
-const { debounce, logger, getExtensionState } = imports.utils;
-
-const debug = logger('sync');
+const { Request } = imports.request;
+const { debounce, logger, getExtensionState, setInterval, clearInterval } = imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists/6d2cfa2848b4e5e91ef181374b15c532';
-const Lang = imports.lang;
-const Soup = imports.gi.Soup;
+const debug = logger('sync');
 
-let _session = new Soup.SessionAsync({ user_agent: 'Mozilla/5.0' });
+
 var Sync = class Sync {
 
   constructor() {
     this.stateChangeHandlerId = null;
     this.syncHandlerId = null;
     this.syncedExtensions = null;
+    this.shouldOverride = true;
+    this.checkIntervalId = null;
+    this.request = new Request({
+      auth: {
+        user: 'notimportant',
+        token: 'xxxxxxx',
+        realm: 'Github Api',
+        host: 'api.github.com'
+      }
+    });
+
   }
 
   enable() {
@@ -34,8 +43,8 @@ var Sync = class Sync {
       'extension-state-changed',
       debounce((event, extension) => this._onExtensionStateChanged(extension), 1000)
     );
-    this.syncHandlerId = this.connect('extensions-sync', this._sync.bind(this));
-
+    this.syncHandlerId = this.connect('extensions-sync', debounce(() => this._sync(), 2000));
+    this.checkIntervalId = setInterval(() => this._checkPeriodically(), 5000);
   }
 
   disable() {
@@ -45,6 +54,9 @@ var Sync = class Sync {
 
     this.disconnect(this.syncHandlerId);
     this.syncHandlerId = null;
+
+    clearInterval(this.checkIntervalId);
+    this.checkIntervalId = null;
 
     if (this.syncedExtensions) {
       Object.keys(this.syncedExtensions).forEach(extensionId => {
@@ -56,34 +68,53 @@ var Sync = class Sync {
     this.syncedExtensions = null;
   }
 
+  getSyncData() {
+    if (!this.syncedExtensions) {
+      return null;
+    }
+
+    const extensions = Object.keys(this.syncedExtensions).reduce((acc, extensionId) => {
+      const syncedExtension = this.syncedExtensions[extensionId];
+
+      return Object.assign({}, acc, {
+        [extensionId]: syncedExtension.settings.getSyncData()
+      })
+
+    }, {});
+
+    return {
+      description: 'Extensions sync',
+      files: {
+        syncSettings: {
+          content: JSON.stringify({
+            lastUpload: new Date(),
+          })
+        },
+        extensions: {
+          content: JSON.stringify(extensions)
+        },
+      },
+    };
+  }
+
   _sync() {
     debug('emitted sync event');
     debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions: ${Object.keys(this.syncedExtensions)}`);
 
     const syncData = this.getSyncData();
-    this.sendRequest(GIST_API_URL, syncData, (code, data) => {
-      debug(`synced extensions successfully. Status code: ${code}`);
-    });
-  }
 
-  sendRequest(url, params, callback) {
-    let _params = JSON.stringify(params);
-
-    let authUri = new Soup.URI(url);
-    authUri.set_user('xxxxxxxxxxxxxxxx');
-    authUri.set_password('xxxxxxxxxxxxxxxx');
-    let message = new Soup.Message({method: 'PATCH', uri: authUri});
-    message.set_request('application/json', Soup.MemoryUse.COPY, _params);
-
-    let auth = new Soup.AuthBasic({host: 'api.github.com', realm: 'Github Api'});
-    let authManager = new Soup.AuthManager();
-    authManager.use_auth(authUri, auth);
-    Soup.Session.prototype.add_feature.call(_session, authManager);
-    _session.queue_message(message, Lang.bind(this,
-      function (session, response) {
-        callback(response.status_code, message.response_body.data);
+    this.request.send({
+      url: GIST_API_URL,
+      options: {
+        method: 'PATCH',
+        contentType: 'application/json',
+        userAgent: 'Mozilla/5.0'
+      },
+      params: syncData,
+      onResponse: (status, data) => {
+        debug(`synced extensions successfully. Status code: ${status}`);
       }
-    ));
+    });
   }
 
   _onExtensionStateChanged(extension) {
@@ -93,8 +124,11 @@ var Sync = class Sync {
         this._startWatching(extension);
         break;
       }
-      case ExtensionSystem.ExtensionState.DISABLED:
-      case ExtensionSystem.ExtensionState.INITIALIZED:
+      // case ExtensionSystem.ExtensionState.ERROR:
+      // case ExtensionSystem.ExtensionState.OUT_OF_DATE:
+      // case ExtensionSystem.ExtensionState.DOWNLOADING:
+      // case ExtensionSystem.ExtensionState.DISABLED:
+      // case ExtensionSystem.ExtensionState.INITIALIZED:
       default: {
         this._stopWatching(extension)
         break;
@@ -149,34 +183,10 @@ var Sync = class Sync {
     this.emit('extensions-sync');
   }
 
-  getSyncData() {
-    if (!this.syncedExtensions) {
-      return null;
+  _checkPeriodically() {
+    if(this.shouldOverride) {
+      debug('checking for updates');
     }
-
-    const extensions = Object.keys(this.syncedExtensions).reduce((acc, extensionId) => {
-      const syncedExtension = this.syncedExtensions[extensionId];
-
-      return Object.assign({}, acc, {
-        [extensionId]: syncedExtension.settings.getSyncData()
-      })
-
-    }, {});
-
-    return {
-      description: 'Extensions sync',
-      files: {
-        syncSettings: {
-          content: JSON.stringify({
-            lastUpload: new Date(),
-          })
-        },
-        extensions: {
-          content: JSON.stringify(extensions)
-        },
-      },
-    };
-
   }
 }
 
