@@ -8,10 +8,9 @@ var Request = class Request {
     this.auth = auth;
   }
 
-  send({ url, options, params, onResponse }) {
-    const { method, contentType, userAgent } = options;
+  send({ url, method, data, onComplete }) {
 
-    const session = new Soup.SessionAsync({ user_agent: userAgent });
+    const session = new Soup.SessionAsync({ user_agent: 'Mozilla/5.0' });
     const uri = new Soup.URI(url);
 
 
@@ -29,11 +28,11 @@ var Request = class Request {
     const message = new Soup.Message({ method, uri });
 
     if (method !== 'GET' && method !== 'HEAD') {
-      message.set_request(contentType, Soup.MemoryUse.COPY, JSON.stringify(params));
+      message.set_request('application/json', Soup.MemoryUse.COPY, JSON.stringify(data));
     }
 
     session.queue_message(message, Lang.bind(this, (_, response) => {
-      onResponse(response.status_code, message.response_body.data);
+      onComplete(response.status_code, message.response_body.data);
     }));
   }
 }
