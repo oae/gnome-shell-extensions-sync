@@ -32,7 +32,7 @@ var Sync = class Sync {
         host: 'api.github.com'
       }
     });
-
+    this.lastUpdatedAt = null;
   }
 
   enable() {
@@ -44,7 +44,7 @@ var Sync = class Sync {
       debounce((event, extension) => this._onExtensionStateChanged(extension), 1000)
     );
     this.syncHandlerId = this.connect('extensions-sync', debounce(() => this._sync(), 2000));
-    this.checkIntervalId = setInterval(() => this._checkPeriodically(), 5000);
+    this.checkIntervalId = setInterval(() => this._checkForUpdates(), 5000);
   }
 
   disable() {
@@ -87,7 +87,7 @@ var Sync = class Sync {
       files: {
         syncSettings: {
           content: JSON.stringify({
-            lastUpload: new Date(),
+            lastUpdatedAt: new Date(),
           })
         },
         extensions: {
@@ -102,16 +102,13 @@ var Sync = class Sync {
     debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions: ${Object.keys(this.syncedExtensions)}`);
 
     const syncData = this.getSyncData();
+    this.lastUpdatedAt = JSON.parse(syncData.files.syncSettings.content).lastUpdatedAt;
 
     this.request.send({
       url: GIST_API_URL,
-      options: {
-        method: 'PATCH',
-        contentType: 'application/json',
-        userAgent: 'Mozilla/5.0'
-      },
-      params: syncData,
-      onResponse: (status, data) => {
+      method: 'PATCH',
+      data: syncData,
+      onComplete: (status, data) => {
         debug(`synced extensions successfully. Status code: ${status}`);
       }
     });
@@ -183,10 +180,30 @@ var Sync = class Sync {
     this.emit('extensions-sync');
   }
 
-  _checkPeriodically() {
-    if(this.shouldOverride) {
+  _checkForUpdates() {
+    if(!this.shouldOverride) {
       debug('checking for updates');
     }
+
+    this.request.send({
+      url: GIST_API_URL,
+      method: 'GET',
+      onComplete: (status, dataStr) => {
+        debug(`checked for updates. Status code: ${status}`);
+
+        const data = JSON.parse(dataStr);
+        const serverlastUpdatedAt = new Date(JSON.parse(data.files.syncSettings.content).lastUpdatedAt);
+        const clientlastUpdatedAt = new Date(this.lastUpdatedAt);
+
+        if(!this.lastUpdatedAt || serverlastUpdatedAt > clientlastUpdatedAt ) {
+          this.lastUpdatedAt = serverlastUpdatedAt;
+          debug('update found');
+        }
+        else {
+          debug('There are no updates');
+        }
+      }
+    });
   }
 }
 
