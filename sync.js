@@ -4,6 +4,7 @@
 // https://opensource.org/licenses/MIT
 
 const ExtensionSystem = imports.ui.extensionSystem;
+const ExtensionDownloader = imports.ui.extensionDownloader;
 const ExtensionUtils = imports.misc.extensionUtils;
 
 const Signals = imports.signals;
@@ -32,7 +33,7 @@ var Sync = class Sync {
         host: 'api.github.com'
       }
     });
-    this.lastUpdatedAt = null;
+    this.lastUpdatedAt = new Date();
   }
 
   enable() {
@@ -43,8 +44,8 @@ var Sync = class Sync {
       'extension-state-changed',
       debounce((event, extension) => this._onExtensionStateChanged(extension), 1000)
     );
-    this.syncHandlerId = this.connect('extensions-sync', debounce(() => this._sync(), 2000));
-    this.checkIntervalId = setInterval(() => this._checkForUpdates(), 5000);
+    this.syncHandlerId = this.connect('extensions-sync', debounce(() => this._updateGist(), 2000));
+    this.checkIntervalId = setInterval(() => this._updateLocal(), 5000);
   }
 
   disable() {
@@ -97,42 +98,6 @@ var Sync = class Sync {
     };
   }
 
-  _sync() {
-    debug('emitted sync event');
-    debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions: ${Object.keys(this.syncedExtensions)}`);
-
-    const syncData = this.getSyncData();
-    this.lastUpdatedAt = JSON.parse(syncData.files.syncSettings.content).lastUpdatedAt;
-
-    this.request.send({
-      url: GIST_API_URL,
-      method: 'PATCH',
-      data: syncData,
-      onComplete: (status, data) => {
-        debug(`synced extensions successfully. Status code: ${status}`);
-      }
-    });
-  }
-
-  _onExtensionStateChanged(extension) {
-    debug(`state of ${extension.metadata.name} changed to: ${getExtensionState(extension)}`);
-    switch (extension.state) {
-      case ExtensionSystem.ExtensionState.ENABLED: {
-        this._startWatching(extension);
-        break;
-      }
-      // case ExtensionSystem.ExtensionState.ERROR:
-      // case ExtensionSystem.ExtensionState.OUT_OF_DATE:
-      // case ExtensionSystem.ExtensionState.DOWNLOADING:
-      // case ExtensionSystem.ExtensionState.DISABLED:
-      // case ExtensionSystem.ExtensionState.INITIALIZED:
-      default: {
-        this._stopWatching(extension)
-        break;
-      }
-    }
-  }
-
   _initExtensions() {
     this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
       .map(extensionId => ExtensionUtils.extensions[extensionId])
@@ -180,29 +145,108 @@ var Sync = class Sync {
     this.emit('extensions-sync');
   }
 
-  _checkForUpdates() {
-    if(!this.shouldOverride) {
-      debug('checking for updates');
+  _onExtensionStateChanged(extension) {
+    debug(`state of ${extension.metadata.name} changed to: ${getExtensionState(extension)}`);
+    switch (extension.state) {
+      case ExtensionSystem.ExtensionState.ENABLED: {
+        this._startWatching(extension);
+        break;
+      }
+      default: {
+        this._stopWatching(extension)
+        break;
+      }
     }
+  }
 
-    this.request.send({
-      url: GIST_API_URL,
-      method: 'GET',
-      onComplete: (status, dataStr) => {
-        debug(`checked for updates. Status code: ${status}`);
+  _updateGist() {
+    debug('emitted sync event');
 
-        const data = JSON.parse(dataStr);
-        const serverlastUpdatedAt = new Date(JSON.parse(data.files.syncSettings.content).lastUpdatedAt);
-        const clientlastUpdatedAt = new Date(this.lastUpdatedAt);
+    const syncData = this.getSyncData();
+    this.lastUpdatedAt = new Date(JSON.parse(syncData.files.syncSettings.content).lastUpdatedAt);
 
-        if(!this.lastUpdatedAt || serverlastUpdatedAt > clientlastUpdatedAt ) {
-          this.lastUpdatedAt = serverlastUpdatedAt;
-          debug('update found');
+    this._shouldUpdateGist().then(() => {
+      debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions: ${Object.keys(this.syncedExtensions)}`);
+      this.request.send({ url: GIST_API_URL, method: 'PATCH', data: syncData }).then(({ status, data }) => {
+        debug(`synced extensions successfully. Status code: ${status}`);
+      });
+    });
+  }
+
+  _shouldUpdateGist() {
+    return new Promise((resolve, reject) => {
+      this._getGistData().then(data => {
+        debug(`syncsettings: ${new Date(data.syncSettings.lastUpdatedAt)}`);
+        debug(`lastupdatedat: ${this.lastUpdatedAt}`);
+        const serverlastUpdatedAt = new Date(data.syncSettings.lastUpdatedAt);
+        if(this.lastUpdatedAt && serverlastUpdatedAt < this.lastUpdatedAt) {
+          debug('should update gist');
+          resolve({
+            serverlastUpdatedAt,
+            data,
+          });
         }
         else {
-          debug('There are no updates');
+          reject();
         }
-      }
+      });
+    });
+  }
+
+  _updateLocal() {
+    debug('checking for updates');
+    this._shouldUpdateLocal().then(({ serverlastUpdatedAt, data }) => {
+      this.lastUpdatedAt = new Date(serverlastUpdatedAt);
+      Object.keys(data.extensions).forEach(extensionId => {
+        const syncedExtension = this.syncedExtensions[extensionId];
+        if(syncedExtension) {
+          syncedExtension.settings.update(data.extensions[extensionId]);
+        }
+        else {
+          ExtensionDownloader.installExtension(extensionId);
+        }
+      });
+
+      // this.request.send({ url: GIST_API_URL, method: 'GET' }).then(({ status, data }) => {
+      //   debug('update found should sync');
+      //   this.lastUpdatedAt = new Date(serverlastUpdatedAt);
+      // });
+    });
+  }
+
+  _shouldUpdateLocal() {
+    return new Promise((resolve, reject) => {
+      this._getGistData().then(data => {
+        const serverlastUpdatedAt = new Date(data.syncSettings.lastUpdatedAt);
+        if(this.lastUpdatedAt && serverlastUpdatedAt > this.lastUpdatedAt) {
+          debug('should update local');
+          resolve({
+            serverlastUpdatedAt,
+            data,
+          });
+        }
+        else {
+          reject();
+        }
+      });
+    });
+  }
+
+  _getGistData() {
+    return new Promise((resolve, reject) => {
+      this.request.send({ url: GIST_API_URL, method: 'GET'}).then(({ status, data }) => {
+        if(status != 200) {
+          reject();
+        }
+        else {
+          const extensions = JSON.parse(data.files.extensions.content);
+          const syncSettings = JSON.parse(data.files.syncSettings.content);
+          resolve({
+            syncSettings,
+            extensions,
+          });
+        }
+      });
     });
   }
 }

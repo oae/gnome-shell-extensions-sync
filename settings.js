@@ -30,6 +30,14 @@ var Settings = class Settings {
     return syncData;
   }
 
+  update(schemaData) {
+    Object.keys(schemaData).forEach(schemaId => {
+      debug(`updating schemaId: ${schemaId}`);
+      this.schemaList[schemaId].data = schemaData[schemaId];
+      this._setSchemaDataToDconf(this.schemaList[schemaId]);
+    });
+  }
+
   startWatching() {
 
     Object.keys(this.schemaList).forEach(schemaId => {
@@ -157,6 +165,14 @@ var Settings = class Settings {
     const [result, stdout, stderr] = GLib.spawn_command_line_sync(`dconf dump ${gSettings.path}`);
 
     return stdout.toString();
+  }
+
+  _setSchemaDataToDconf(schema) {
+    schema.gSettings.disconnect(schema.changeHandlerId);
+    let [result, stdout, stderr] = GLib.spawn_sync(null, ["bash", "-c", `echo '${schema.data}' | dconf load ${schema.gSettings.path}`], null, GLib.SpawnFlags.SEARCH_PATH,null);
+    this.schemaList[schema.gSettings.schema_id].changeHandlerId = schema.gSettings.connect('changed', () => {
+      this._onSettingsChanged(schema);
+    });
   }
 
 }
