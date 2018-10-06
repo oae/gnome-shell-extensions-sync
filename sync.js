@@ -65,8 +65,6 @@ var Sync = class Sync {
         syncedExtension.settings.stopWatching();
       });
     }
-
-    this.syncedExtensions = null;
   }
 
   getSyncData() {
@@ -182,6 +180,9 @@ var Sync = class Sync {
 
     if(shouldUpdateLocal) {
       this.lastUpdatedAt = new Date(syncSettings.lastUpdatedAt);
+
+      this.disable();
+
       Object.keys(extensions).forEach(extensionId => {
         const syncedExtension = this.syncedExtensions[extensionId];
         if(syncedExtension) {
@@ -189,8 +190,11 @@ var Sync = class Sync {
         }
         else {
           ExtensionDownloader.installExtension(extensionId);
+          // TODO: Start watching newly installed extension
         }
       });
+
+      this.enable();
     }
   }
 

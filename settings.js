@@ -31,11 +31,20 @@ var Settings = class Settings {
   }
 
   update(schemaData) {
+
     Object.keys(schemaData).forEach(schemaId => {
       debug(`updating schemaId: ${schemaId}`);
-      this.schemaList[schemaId].data = schemaData[schemaId];
-      this._setSchemaDataToDconf(this.schemaList[schemaId]);
+      const schema = this.schemaList[schemaId];
+      const gSettings = schema.gSettings;
+
+      const newData = schemaData[schemaId];
+
+      this._setSchemaDataToDconf({
+        gSettings,
+        newData
+      });
     });
+
   }
 
   startWatching() {
@@ -55,10 +64,12 @@ var Settings = class Settings {
 
     Object.keys(this.schemaList).forEach(schemaId => {
       const schema = this.schemaList[schemaId];
-      schema.gSettings.disconnect(schema.changeHandlerId);
-      schema.changeHandlerId = null;
-      schema.data = null;
-      debug(`disconnected from ${schemaId}`);
+      if(schema.changeHandlerId) {
+        schema.gSettings.disconnect(schema.changeHandlerId);
+        schema.changeHandlerId = null;
+        schema.data = null;
+        debug(`disconnected from ${schemaId}`);
+      }
     });
 
     debug(`stopped watching changes for ${this.extension.metadata.name}`);
@@ -167,12 +178,8 @@ var Settings = class Settings {
     return stdout.toString();
   }
 
-  _setSchemaDataToDconf(schema) {
-    schema.gSettings.disconnect(schema.changeHandlerId);
-    let [result, stdout, stderr] = GLib.spawn_sync(null, ["bash", "-c", `echo '${schema.data}' | dconf load ${schema.gSettings.path}`], null, GLib.SpawnFlags.SEARCH_PATH,null);
-    this.schemaList[schema.gSettings.schema_id].changeHandlerId = schema.gSettings.connect('changed', () => {
-      this._onSettingsChanged(schema);
-    });
+  _setSchemaDataToDconf({ gSettings, newData }) {
+    GLib.spawn_sync(null, ["bash", "-c", `echo "${newData}" | dconf load ${gSettings.path}`], null, GLib.SpawnFlags.SEARCH_PATH, null);
   }
 
 }
