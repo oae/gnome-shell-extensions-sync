@@ -8,7 +8,7 @@ var Request = class Request {
     this.auth = auth;
   }
 
-  send({ url, method, data }) {
+  async send({ url, method, data }) {
 
     const session = new Soup.SessionAsync({ user_agent: 'Mozilla/5.0' });
     const uri = new Soup.URI(url);
@@ -31,11 +31,13 @@ var Request = class Request {
       message.set_request('application/json', Soup.MemoryUse.COPY, JSON.stringify(data));
     }
 
-    return new Promise((resolve, reject) => {
+    const result = await new Promise((resolve, reject) => {
       session.queue_message(message, (_, response) => resolve({
         status: response.status_code,
         data: JSON.parse(message.response_body.data),
       }));
     });
+
+    return result;
   }
 }

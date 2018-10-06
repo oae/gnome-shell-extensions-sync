@@ -159,97 +159,64 @@ var Sync = class Sync {
     }
   }
 
-  _updateGist() {
+  async _updateGist() {
     debug('emitted sync event');
 
     const syncData = this.getSyncData();
     this.lastUpdatedAt = new Date(JSON.parse(syncData.files.syncSettings.content).lastUpdatedAt);
 
-    this._shouldUpdateGist().then(() => {
-      debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions: ${Object.keys(this.syncedExtensions)}`);
-      this.request.send({ url: GIST_API_URL, method: 'PATCH', data: syncData }).then(({ status, data }) => {
-        debug(`synced extensions successfully. Status code: ${status}`);
-      });
-    });
+    const gistData = await this._getGistData();
+    const shouldUpdateGist = this._shouldUpdateGist(gistData);
+
+    if(shouldUpdateGist) {
+      debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions`);
+      const { status } = await this.request.send({ url: GIST_API_URL, method: 'PATCH', data: syncData });
+      debug(`synced extensions successfully. Status code: ${status}`);
+    }
   }
 
-  _shouldUpdateGist() {
-    return new Promise((resolve, reject) => {
-      this._getGistData().then(data => {
-        debug(`syncsettings: ${new Date(data.syncSettings.lastUpdatedAt)}`);
-        debug(`lastupdatedat: ${this.lastUpdatedAt}`);
-        const serverlastUpdatedAt = new Date(data.syncSettings.lastUpdatedAt);
-        if(this.lastUpdatedAt && serverlastUpdatedAt < this.lastUpdatedAt) {
-          debug('should update gist');
-          resolve({
-            serverlastUpdatedAt,
-            data,
-          });
-        }
-        else {
-          reject();
-        }
-      });
-    });
-  }
-
-  _updateLocal() {
+  async _updateLocal() {
     debug('checking for updates');
-    this._shouldUpdateLocal().then(({ serverlastUpdatedAt, data }) => {
-      this.lastUpdatedAt = new Date(serverlastUpdatedAt);
-      Object.keys(data.extensions).forEach(extensionId => {
+    const { syncSettings, extensions } = await this._getGistData();
+    const shouldUpdateLocal = this._shouldUpdateLocal({ syncSettings });
+
+    if(shouldUpdateLocal) {
+      this.lastUpdatedAt = new Date(syncSettings.lastUpdatedAt);
+      Object.keys(extensions).forEach(extensionId => {
         const syncedExtension = this.syncedExtensions[extensionId];
         if(syncedExtension) {
-          syncedExtension.settings.update(data.extensions[extensionId]);
+          syncedExtension.settings.update(extensions[extensionId]);
         }
         else {
           ExtensionDownloader.installExtension(extensionId);
         }
       });
-
-      // this.request.send({ url: GIST_API_URL, method: 'GET' }).then(({ status, data }) => {
-      //   debug('update found should sync');
-      //   this.lastUpdatedAt = new Date(serverlastUpdatedAt);
-      // });
-    });
+    }
   }
 
-  _shouldUpdateLocal() {
-    return new Promise((resolve, reject) => {
-      this._getGistData().then(data => {
-        const serverlastUpdatedAt = new Date(data.syncSettings.lastUpdatedAt);
-        if(this.lastUpdatedAt && serverlastUpdatedAt > this.lastUpdatedAt) {
-          debug('should update local');
-          resolve({
-            serverlastUpdatedAt,
-            data,
-          });
-        }
-        else {
-          reject();
-        }
-      });
-    });
+  _shouldUpdateGist({ syncSettings }) {
+    const serverlastUpdatedAt = new Date(syncSettings.lastUpdatedAt);
+
+    return this.lastUpdatedAt && serverlastUpdatedAt < this.lastUpdatedAt;
   }
 
-  _getGistData() {
-    return new Promise((resolve, reject) => {
-      this.request.send({ url: GIST_API_URL, method: 'GET'}).then(({ status, data }) => {
-        if(status != 200) {
-          reject();
-        }
-        else {
-          const extensions = JSON.parse(data.files.extensions.content);
-          const syncSettings = JSON.parse(data.files.syncSettings.content);
-          resolve({
-            syncSettings,
-            extensions,
-          });
-        }
-      });
-    });
+  _shouldUpdateLocal({ syncSettings }) {
+    const serverlastUpdatedAt = new Date(syncSettings.lastUpdatedAt);
+
+    return this.lastUpdatedAt && serverlastUpdatedAt > this.lastUpdatedAt;
+  }
+
+  async _getGistData() {
+    const { data } = await this.request.send({ url: GIST_API_URL, method: 'GET'});
+
+    const extensions = JSON.parse(data.files.extensions.content);
+    const syncSettings = JSON.parse(data.files.syncSettings.content);
+
+    return {
+      syncSettings,
+      extensions,
+    }
   }
 }
-
 
 Signals.addSignalMethods(Sync.prototype);
