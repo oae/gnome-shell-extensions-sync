@@ -204,7 +204,6 @@ var Sync = class Sync {
         }
         else {
           ExtensionDownloader.installExtension(extensionId);
-          // TODO: Start watching newly installed extension
         }
       });
 
@@ -213,20 +212,49 @@ var Sync = class Sync {
   }
 
   _shouldUpdateGist(requestDate, serverDate) {
+    const localLastUpdatedAt = this._getLastUpdatedAt();
+
+    if(!localLastUpdatedAt && !serverDate) {
+      return true;
+    }
+    else if(!localLastUpdatedAt || (localLastUpdatedAt && !serverDate)) {
+      return false;
+    }
 
     return new Date(requestDate) > new Date(serverDate);
   }
 
   _shouldUpdateLocal(serverDate) {
 
-    return new Date(serverDate) > new Date(this._getLastUpdatedAt());
+    const localLastUpdatedAt = this._getLastUpdatedAt();
+
+    if(!localLastUpdatedAt && serverDate) {
+      return true;
+    }
+    else if(localLastUpdatedAt && !serverDate) {
+      return false;
+    }
+
+    return new Date(serverDate) > new Date(localLastUpdatedAt);
   }
 
   async _getGistData() {
     const { data } = await this.request.send({ url: this._getGistUrl(), method: 'GET' });
+    let extensions;
+    let syncSettings;
+    try {
+      extensions = JSON.parse(data.files.extensions.content);
+    }
+    catch(e) {
+      extensions = {};
+    }
 
-    const extensions = JSON.parse(data.files.extensions.content);
-    const syncSettings = JSON.parse(data.files.syncSettings.content);
+    try {
+      syncSettings = JSON.parse(data.files.syncSettings.content);
+    }
+    catch(e) {
+      syncSettings = {};
+    }
 
     return {
       syncSettings,
