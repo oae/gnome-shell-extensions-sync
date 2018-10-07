@@ -11,7 +11,7 @@ const Signals = imports.signals;
 
 const { Settings } = imports.settings;
 const { Request } = imports.request;
-const { debounce, logger, getExtensionState, setInterval, clearInterval } = imports.utils;
+const { debounce, logger, getExtensionState, setInterval, clearInterval, setTimeout } = imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists/6d2cfa2848b4e5e91ef181374b15c532';
 const debug = logger('sync');
@@ -38,12 +38,14 @@ var Sync = class Sync {
 
   enable() {
     debug('enabled');
-    this._initExtensions();
 
-    this.stateChangeHandlerId = ExtensionSystem.connect(
-      'extension-state-changed',
-      debounce((event, extension) => this._onExtensionStateChanged(extension), 1000)
-    );
+    setTimeout(() => {
+      this._initExtensions();
+      this.stateChangeHandlerId = ExtensionSystem.connect(
+        'extension-state-changed',
+        debounce((event, extension) => this._onExtensionStateChanged(extension), 1000)
+      );
+    }, 3000);
     this.syncHandlerId = this.connect('extensions-sync', debounce(() => this._updateGist(), 2000));
     this.checkIntervalId = setInterval(() => this._updateLocal(), 5000);
   }
