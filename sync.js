@@ -12,7 +12,7 @@ const Signals = imports.signals;
 const { Settings } = imports.settings;
 const { getSettings } = imports.convenience;
 const { Request } = imports.request;
-const { difference, debounce, logger, setInterval, clearInterval, setTimeout } = imports.utils;
+const { debounce, logger, setInterval, clearInterval, setTimeout } = imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists';
 const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
