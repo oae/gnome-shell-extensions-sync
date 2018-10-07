@@ -35,7 +35,15 @@
 
 ## Dependencies
 
-* GXml - https://gitlab.gnome.org/GNOME/gxml
+```bash
+sudo apt install git build-essential valac valadoc autoconf intltool libtool-bin automake libxml2-dev libgee-0.8-2 libgee-0.8-dev  gobject-introspection libgirepository1.0-dev
+git clone https://gitlab.gnome.org/GNOME/gxml.git
+cd gxml
+./autogen.sh
+./configure --prefix=/usr/
+make
+sudo make install
+```
 
 
 ## Documentations
