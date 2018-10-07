@@ -1,30 +1,36 @@
 const Gtk = imports.gi.Gtk;
-const Lang = imports.lang;
-
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const Preferences = new Lang.Class({
-  Name: 'ExtensionsSync.Preferences.Widget',
-  GTypeName: 'Preferences',
-  Extends: Gtk.Box,
+const Preferences = class Preferences {
 
-  _init: function (params) {
-    this.parent(params);
+  constructor() {
+    this.widget = new Gtk.Box();
+    this.builder = Gtk.Builder.new_from_file(Me.dir.get_path() + "/ui/settings.glade");
 
-    const builder = Gtk.Builder.new_from_file(Me.dir.get_path() + "/ui/settings.glade");
-    const settingsBox = builder.get_object('gist-settings');
+    this.builder.connect_signals_full((builder,object,signal,handler) => {
+      object.connect(signal, this[handler].bind(this));
+    });
 
-    this.pack_start(settingsBox, true, true, 0);
-  },
-});
+    const settingsBox = this.builder.get_object('gist-settings');
+
+    this.widget.pack_start(settingsBox,true,true,0);
+  }
+
+  onSave() {
+  }
+
+  onCancel() {
+  }
+
+}
 
 function init() {
 }
 
 function buildPrefsWidget() {
-  let prefsWidget = new Preferences();
-  prefsWidget.show_all();
+  let prefs = new Preferences();
+  prefs.widget.show_all();
 
-  return prefsWidget;
+  return prefs.widget;
 }
