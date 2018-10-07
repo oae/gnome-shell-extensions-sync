@@ -4,25 +4,6 @@
 // https://opensource.org/licenses/MIT
 
 const GLib = imports.gi.GLib;
-const ExtensionSystem = imports.ui.extensionSystem;
-
-function getExtensionState(extension) {
-  switch (extension.state) {
-    case ExtensionSystem.ExtensionState.ENABLED:
-      return "Enabled";
-    case ExtensionSystem.ExtensionState.DISABLED:
-    case ExtensionSystem.ExtensionState.INITIALIZED:
-      return "Disabled";
-    case ExtensionSystem.ExtensionState.ERROR:
-      return "Error";
-    case ExtensionSystem.ExtensionState.OUT_OF_DATE:
-      return "Out of date";
-    case ExtensionSystem.ExtensionState.DOWNLOADING:
-      return "Downloading";
-    default:
-      return 'Unknown';
-  }
-};
 
 var setTimeout = (func, millis) => {
   return GLib.timeout_add(GLib.PRIORITY_DEFAULT, millis, () => {

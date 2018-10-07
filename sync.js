@@ -10,16 +10,18 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Signals = imports.signals;
 
 const { Settings } = imports.settings;
+const { getSettings } = imports.convenience;
 const { Request } = imports.request;
-const { debounce, logger, getExtensionState, setInterval, clearInterval, setTimeout } = imports.utils;
+const { debounce, logger, setInterval, clearInterval, setTimeout } = imports.utils;
 
-const GIST_API_URL = 'https://api.github.com/gists/6d2cfa2848b4e5e91ef181374b15c532';
+const GIST_API_URL = 'https://api.github.com/gists';
+const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
 const debug = logger('sync');
-
 
 var Sync = class Sync {
 
   constructor() {
+    this.settings = getSettings('org.gnome.shell.extensions.sync');
     this.stateChangeHandlerId = null;
     this.syncHandlerId = null;
     this.syncedExtensions = null;
@@ -28,12 +30,11 @@ var Sync = class Sync {
     this.request = new Request({
       auth: {
         user: 'notimportant',
-        token: 'xxxxxxx',
+        token: `${this._getGistToken()}`,
         realm: 'Github Api',
         host: 'api.github.com'
       }
     });
-    this.lastUpdatedAt = new Date();
   }
 
   enable() {
@@ -43,11 +44,11 @@ var Sync = class Sync {
       this._initExtensions();
       this.stateChangeHandlerId = ExtensionSystem.connect(
         'extension-state-changed',
-        debounce((event, extension) => this._onExtensionStateChanged(extension), 1000)
+        debounce((event,extension) => this._onExtensionStateChanged(extension),1000)
       );
-    }, 3000);
-    this.syncHandlerId = this.connect('extensions-sync', debounce(() => this._updateGist(), 2000));
-    this.checkIntervalId = setInterval(() => this._updateLocal(), 5000);
+    },3000);
+    this.syncHandlerId = this.connect('extensions-sync',debounce(() => this._updateGist(),2000));
+    this.checkIntervalId = setInterval(() => this._updateLocal(),5000);
   }
 
   disable() {
@@ -74,14 +75,14 @@ var Sync = class Sync {
       return null;
     }
 
-    const extensions = Object.keys(this.syncedExtensions).reduce((acc, extensionId) => {
+    const extensions = Object.keys(this.syncedExtensions).reduce((acc,extensionId) => {
       const syncedExtension = this.syncedExtensions[extensionId];
 
-      return Object.assign({}, acc, {
+      return Object.assign({},acc,{
         [extensionId]: syncedExtension.settings.getSyncData()
       })
 
-    }, {});
+    },{});
 
     return {
       description: 'Extensions sync',
@@ -102,20 +103,21 @@ var Sync = class Sync {
     this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
       .map(extensionId => ExtensionUtils.extensions[extensionId])
       .filter(extension => extension.state === ExtensionSystem.ExtensionState.ENABLED)
-      .reduce((acc, extension) => {
+      .filter(extension => BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
+      .reduce((acc,extension) => {
 
         const metadata = extension.metadata;
         const settings = new Settings(extension);
         settings.startWatching();
 
-        return Object.assign({}, acc, {
+        return Object.assign({},acc,{
           [metadata.uuid]: {
             extension,
             settings,
           }
         });
 
-      }, {});
+      },{});
 
     this.emit('extensions-sync');
   }
@@ -146,7 +148,11 @@ var Sync = class Sync {
   }
 
   _onExtensionStateChanged(extension) {
-    debug(`state of ${extension.metadata.name} changed to: ${getExtensionState(extension)}`);
+    if(BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) >= 0) {
+      return;
+    }
+
+    debug(`state of ${extension.metadata.name} changed to: ${this._getExtensionState(extension)}`);
     switch (extension.state) {
       case ExtensionSystem.ExtensionState.ENABLED: {
         this._startWatching(extension);
@@ -163,31 +169,37 @@ var Sync = class Sync {
     debug('emitted sync event');
 
     const syncData = this.getSyncData();
-    this.lastUpdatedAt = new Date(JSON.parse(syncData.files.syncSettings.content).lastUpdatedAt);
-
     const gistData = await this._getGistData();
-    const shouldUpdateGist = this._shouldUpdateGist(gistData);
 
-    if(shouldUpdateGist) {
+    const updateRequestDate = JSON.parse(syncData.files.syncSettings.content).lastUpdatedAt;
+    const shouldUpdateGist = this._shouldUpdateGist(updateRequestDate, gistData.syncSettings.lastUpdatedAt);
+
+    if (shouldUpdateGist) {
       debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions`);
-      const { status } = await this.request.send({ url: GIST_API_URL, method: 'PATCH', data: syncData });
-      debug(`synced extensions successfully. Status code: ${status}`);
+      const { status } = await this.request.send({ url: this._getGistUrl(), method: 'PATCH', data: syncData });
+
+      if(status == '200') {
+        this._setLastUpdatedAt(updateRequestDate);
+        debug(`synced extensions successfully. Status code: ${status}`);
+      }
+
     }
   }
 
   async _updateLocal() {
     debug('checking for updates');
-    const { syncSettings, extensions } = await this._getGistData();
-    const shouldUpdateLocal = this._shouldUpdateLocal({ syncSettings });
+    const { syncSettings,extensions } = await this._getGistData();
+    const shouldUpdateLocal = this._shouldUpdateLocal(syncSettings.lastUpdatedAt);
 
-    if(shouldUpdateLocal) {
-      this.lastUpdatedAt = new Date(syncSettings.lastUpdatedAt);
+    if (shouldUpdateLocal) {
 
       this.disable();
 
+      this._setLastUpdatedAt(syncSettings.lastUpdatedAt);
+
       Object.keys(extensions).forEach(extensionId => {
         const syncedExtension = this.syncedExtensions[extensionId];
-        if(syncedExtension) {
+        if (syncedExtension) {
           syncedExtension.settings.update(extensions[extensionId]);
         }
         else {
@@ -200,20 +212,18 @@ var Sync = class Sync {
     }
   }
 
-  _shouldUpdateGist({ syncSettings }) {
-    const serverlastUpdatedAt = new Date(syncSettings.lastUpdatedAt);
+  _shouldUpdateGist(requestDate, serverDate) {
 
-    return this.lastUpdatedAt && serverlastUpdatedAt < this.lastUpdatedAt;
+    return new Date(requestDate) > new Date(serverDate);
   }
 
-  _shouldUpdateLocal({ syncSettings }) {
-    const serverlastUpdatedAt = new Date(syncSettings.lastUpdatedAt);
+  _shouldUpdateLocal(serverDate) {
 
-    return this.lastUpdatedAt && serverlastUpdatedAt > this.lastUpdatedAt;
+    return new Date(serverDate) > new Date(this._getLastUpdatedAt());
   }
 
   async _getGistData() {
-    const { data } = await this.request.send({ url: GIST_API_URL, method: 'GET'});
+    const { data } = await this.request.send({ url: this._getGistUrl(), method: 'GET' });
 
     const extensions = JSON.parse(data.files.extensions.content);
     const syncSettings = JSON.parse(data.files.syncSettings.content);
@@ -223,6 +233,45 @@ var Sync = class Sync {
       extensions,
     }
   }
+
+  _getLastUpdatedAt() {
+
+    return this.settings.get_string('last-updated-at');
+  }
+
+  _setLastUpdatedAt(date) {
+    this.settings.set_string('last-updated-at', date);
+  }
+
+  _getGistUrl() {
+    return `${GIST_API_URL}/${this._getGistId()}`
+  }
+
+  _getGistId() {
+    return this.settings.get_string('gist-id');
+  }
+
+  _getGistToken() {
+    return this.settings.get_string('gist-token');
+  }
+
+  _getExtensionState(extension) {
+    switch (extension.state) {
+      case ExtensionSystem.ExtensionState.ENABLED:
+        return "Enabled";
+      case ExtensionSystem.ExtensionState.DISABLED:
+      case ExtensionSystem.ExtensionState.INITIALIZED:
+        return "Disabled";
+      case ExtensionSystem.ExtensionState.ERROR:
+        return "Error";
+      case ExtensionSystem.ExtensionState.OUT_OF_DATE:
+        return "Out of date";
+      case ExtensionSystem.ExtensionState.DOWNLOADING:
+        return "Downloading";
+      default:
+        return 'Unknown';
+    }
+  };
 }
 
 Signals.addSignalMethods(Sync.prototype);
