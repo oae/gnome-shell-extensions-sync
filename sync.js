@@ -12,10 +12,13 @@ const Signals = imports.signals;
 const { Settings } = imports.settings;
 const { getSettings } = imports.convenience;
 const { Request } = imports.request;
-const { debounce, logger, setInterval, clearInterval, setTimeout } = imports.utils;
+const { difference, debounce, logger, setInterval, clearInterval, setTimeout } = imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists';
 const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
+
+Array.prototype.diff = function(array) { return this.filter(i => array.indexOf(i) < 0) };
+
 const debug = logger('sync');
 
 var Sync = class Sync {
@@ -44,11 +47,11 @@ var Sync = class Sync {
       this._initExtensions();
       this.stateChangeHandlerId = ExtensionSystem.connect(
         'extension-state-changed',
-        debounce((event,extension) => this._onExtensionStateChanged(extension),1000)
+        debounce((event,extension) => this._onExtensionStateChanged(extension),10000)
       );
     },3000);
-    this.syncHandlerId = this.connect('extensions-sync',debounce(() => this._updateGist(),2000));
-    this.checkIntervalId = setInterval(() => this._updateLocal(),5000);
+    this.syncHandlerId = this.connect('extensions-sync',debounce(() => this._updateGist(),10000));
+    this.checkIntervalId = setInterval(() => this._updateLocal(),30000);
   }
 
   disable() {
@@ -194,6 +197,10 @@ var Sync = class Sync {
     if (shouldUpdateLocal) {
 
       this.disable();
+
+      const toBeRemoved = Object.keys(this.syncedExtensions).diff(Object.keys(extensions));
+      debug(`removed: ${JSON.stringify(toBeRemoved)}`);
+      toBeRemoved.forEach(extensionId => ExtensionDownloader.uninstallExtension(extensionId));
 
       this._setLastUpdatedAt(syncSettings.lastUpdatedAt);
 
