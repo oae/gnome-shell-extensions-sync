@@ -10,7 +10,11 @@ cd gxml
 ./configure --prefix=/usr/
 make
 sudo make install
-cd ..
+```
+
+## Installation
+
+```bash
 git clone https://github.com/oae/gnome-shell-extensions-sync.git
 make install
 ```
