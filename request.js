@@ -27,6 +27,7 @@ var Request = class Request {
 
       authManager.use_auth(uri, basicAuth);
       Soup.Session.prototype.add_feature.call(session, authManager);
+      Soup.Session.prototype.add_feature.call(session, new Soup.ProxyResolverDefault());
     }
 
     const message = new Soup.Message({ method, uri });
