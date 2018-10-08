@@ -46,6 +46,8 @@ const Preferences = class Preferences {
 
     const gistToken = this.gistTokenEntry.get_text();
     this.settings.set_string('gist-token', gistToken);
+
+    this.onClose();
   }
 
   onClose() {

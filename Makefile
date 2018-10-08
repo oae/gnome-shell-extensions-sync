@@ -2,7 +2,7 @@
 
 UUID = extensions-sync@elhan.io
 BASE_MODULES = extension.js metadata.json LICENSE.md README.md
-EXTRA_MODULES = utils.js sync.js settings.js request.js prefs.js convenience.js ui
+EXTRA_MODULES = utils.js sync.js settings.js request.js prefs.js convenience.js ui statusMenu.js icons
 TOLOCALIZE =
 INSTALLBASE = ~/.local/share/gnome-shell/extensions
 INSTALLNAME = extensions-sync@elhan.io

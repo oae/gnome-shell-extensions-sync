@@ -15,7 +15,6 @@ const { Request } = imports.request;
 const { debounce, logger, setInterval, clearInterval, setTimeout } = imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists';
-const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
 
 Array.prototype.diff = function(array) { return this.filter(i => array.indexOf(i) < 0) };
 
@@ -26,10 +25,8 @@ var Sync = class Sync {
   constructor() {
     this.settings = getSettings('org.gnome.shell.extensions.sync');
     this.stateChangeHandlerId = null;
-    this.syncHandlerId = null;
     this.syncedExtensions = null;
     this.shouldOverride = true;
-    this.checkIntervalId = null;
     this.request = new Request({
       auth: {
         user: 'notimportant',
@@ -43,15 +40,11 @@ var Sync = class Sync {
   enable() {
     debug('enabled');
 
-    setTimeout(() => {
-      this._initExtensions();
-      this.stateChangeHandlerId = ExtensionSystem.connect(
-        'extension-state-changed',
-        debounce((event,extension) => this._onExtensionStateChanged(extension),10000)
-      );
-    },3000);
-    this.syncHandlerId = this.connect('extensions-sync',debounce(() => this._updateGist(),10000));
-    this.checkIntervalId = setInterval(() => this._updateLocal(),30000);
+    this._initExtensions();
+    this.stateChangeHandlerId = ExtensionSystem.connect(
+      'extension-state-changed',
+      debounce((event,extension) => this._onExtensionStateChanged(extension),3000)
+    );
   }
 
   disable() {
@@ -59,18 +52,47 @@ var Sync = class Sync {
     ExtensionSystem.disconnect(this.stateChangeHandlerId);
     this.stateChangeHandlerId = null;
 
-    this.disconnect(this.syncHandlerId);
-    this.syncHandlerId = null;
-
-    clearInterval(this.checkIntervalId);
-    this.checkIntervalId = null;
-
     if (this.syncedExtensions) {
       Object.keys(this.syncedExtensions).forEach(extensionId => {
         const syncedExtension = this.syncedExtensions[extensionId];
         syncedExtension.settings.stopWatching();
       });
     }
+  }
+
+  async updateGist() {
+    debug('emitted sync event');
+    debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions`);
+
+    const syncData = this.getSyncData();
+
+    const { status } = await this.request.send({ url: this._getGistUrl(), method: 'PATCH', data: syncData });
+
+    debug(`synced extensions successfully. Status code: ${status}`);
+  }
+
+  async updateLocal() {
+    this.disable();
+
+    debug('checking for updates');
+
+    const { extensions } = await this._getGistData();
+
+    const toBeRemoved = Object.keys(this.syncedExtensions).diff(Object.keys(extensions));
+    debug(`removed: ${JSON.stringify(toBeRemoved)}`);
+    toBeRemoved.forEach(extensionId => ExtensionDownloader.uninstallExtension(extensionId));
+
+    Object.keys(extensions).forEach(extensionId => {
+      const syncedExtension = this.syncedExtensions[extensionId];
+      if (syncedExtension) {
+        syncedExtension.settings.update(extensions[extensionId]);
+      }
+      else {
+        ExtensionDownloader.installExtension(extensionId);
+      }
+    });
+
+    this.enable();
   }
 
   getSyncData() {
@@ -106,7 +128,6 @@ var Sync = class Sync {
     this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
       .map(extensionId => ExtensionUtils.extensions[extensionId])
       .filter(extension => extension.state === ExtensionSystem.ExtensionState.ENABLED)
-      .filter(extension => BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
       .reduce((acc,extension) => {
 
         const metadata = extension.metadata;
@@ -151,9 +172,6 @@ var Sync = class Sync {
   }
 
   _onExtensionStateChanged(extension) {
-    if(BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) >= 0) {
-      return;
-    }
 
     debug(`state of ${extension.metadata.name} changed to: ${this._getExtensionState(extension)}`);
     switch (extension.state) {
@@ -166,83 +184,6 @@ var Sync = class Sync {
         break;
       }
     }
-  }
-
-  async _updateGist() {
-    debug('emitted sync event');
-
-    const syncData = this.getSyncData();
-    const gistData = await this._getGistData();
-
-    const updateRequestDate = JSON.parse(syncData.files.syncSettings.content).lastUpdatedAt;
-    const shouldUpdateGist = this._shouldUpdateGist(updateRequestDate, gistData.syncSettings.lastUpdatedAt);
-
-    if (shouldUpdateGist) {
-      debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions`);
-      const { status } = await this.request.send({ url: this._getGistUrl(), method: 'PATCH', data: syncData });
-
-      if(status == '200') {
-        this._setLastUpdatedAt(updateRequestDate);
-        debug(`synced extensions successfully. Status code: ${status}`);
-      }
-
-    }
-  }
-
-  async _updateLocal() {
-    debug('checking for updates');
-    const { syncSettings,extensions } = await this._getGistData();
-    const shouldUpdateLocal = this._shouldUpdateLocal(syncSettings.lastUpdatedAt);
-
-    if (shouldUpdateLocal) {
-
-      this.disable();
-
-      const toBeRemoved = Object.keys(this.syncedExtensions).diff(Object.keys(extensions));
-      debug(`removed: ${JSON.stringify(toBeRemoved)}`);
-      toBeRemoved.forEach(extensionId => ExtensionDownloader.uninstallExtension(extensionId));
-
-      this._setLastUpdatedAt(syncSettings.lastUpdatedAt);
-
-      Object.keys(extensions).forEach(extensionId => {
-        const syncedExtension = this.syncedExtensions[extensionId];
-        if (syncedExtension) {
-          syncedExtension.settings.update(extensions[extensionId]);
-        }
-        else {
-          ExtensionDownloader.installExtension(extensionId);
-        }
-      });
-
-      this.enable();
-    }
-  }
-
-  _shouldUpdateGist(requestDate, serverDate) {
-    const localLastUpdatedAt = this._getLastUpdatedAt();
-
-    if(!localLastUpdatedAt && !serverDate) {
-      return true;
-    }
-    else if(!localLastUpdatedAt || (localLastUpdatedAt && !serverDate)) {
-      return false;
-    }
-
-    return new Date(requestDate) > new Date(serverDate);
-  }
-
-  _shouldUpdateLocal(serverDate) {
-
-    const localLastUpdatedAt = this._getLastUpdatedAt();
-
-    if(!localLastUpdatedAt && serverDate) {
-      return true;
-    }
-    else if(localLastUpdatedAt && !serverDate) {
-      return false;
-    }
-
-    return new Date(serverDate) > new Date(localLastUpdatedAt);
   }
 
   async _getGistData() {
