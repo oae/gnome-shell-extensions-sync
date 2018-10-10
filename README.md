@@ -69,8 +69,7 @@ make install
   "files": {
     "syncSettings": {
       "content": {
-        "lastUpload": "time",
-        "shellVersion": "gnome shell version"
+        "lastUpdatedAt": "time",
       }
     },
     "extensions": {
