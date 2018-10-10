@@ -12,9 +12,10 @@ const Signals = imports.signals;
 const { Settings } = imports.settings;
 const { getSettings } = imports.convenience;
 const { Request } = imports.request;
-const { debounce, logger, setInterval, clearInterval, setTimeout } = imports.utils;
+const { debounce, logger, setTimeout, clearTimeout } = imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists';
+const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
 
 Array.prototype.diff = function(array) { return this.filter(i => array.indexOf(i) < 0) };
 
@@ -25,6 +26,7 @@ var Sync = class Sync {
   constructor() {
     this.settings = getSettings('org.gnome.shell.extensions.sync');
     this.stateChangeHandlerId = null;
+    this.initializeHandlerId = null;
     this.syncedExtensions = null;
     this.shouldOverride = true;
     this.request = new Request({
@@ -40,17 +42,22 @@ var Sync = class Sync {
   enable() {
     debug('enabled');
 
-    this._initExtensions();
-    this.stateChangeHandlerId = ExtensionSystem.connect(
-      'extension-state-changed',
-      debounce((event,extension) => this._onExtensionStateChanged(extension),3000)
-    );
+    this.initializeHandlerId = setTimeout(() => {
+      this._initExtensions();
+      this.stateChangeHandlerId = ExtensionSystem.connect(
+        'extension-state-changed',
+        debounce((event,extension) => this._onExtensionStateChanged(extension),3000)
+      );
+    }, 3000);
   }
 
   disable() {
     debug('disabled');
     ExtensionSystem.disconnect(this.stateChangeHandlerId);
     this.stateChangeHandlerId = null;
+
+    clearTimeout(this.initializeHandlerId);
+    this.initializeHandlerId = null;
 
     if (this.syncedExtensions) {
       Object.keys(this.syncedExtensions).forEach(extensionId => {
@@ -68,7 +75,12 @@ var Sync = class Sync {
 
     const { status } = await this.request.send({ url: this._getGistUrl(), method: 'PATCH', data: syncData });
 
-    debug(`synced extensions successfully. Status code: ${status}`);
+    if(status != 200) {
+      debug(`Failed to update gist. Status code: ${status}`);
+      return;
+    }
+
+    debug(`Updated gist successfully. Status code: ${status}`);
   }
 
   async updateLocal() {
@@ -76,7 +88,15 @@ var Sync = class Sync {
 
     debug('checking for updates');
 
-    const { extensions } = await this._getGistData();
+    const gistData = await this._getGistData();
+
+    if(!gistData) {
+      debug('cannot get extension settings from gist. Check your connection.');
+      this.enable();
+      return;
+    }
+
+    const { extensions } = gistData;
 
     const toBeRemoved = Object.keys(this.syncedExtensions).diff(Object.keys(extensions));
     debug(`removed: ${JSON.stringify(toBeRemoved)}`);
@@ -127,6 +147,7 @@ var Sync = class Sync {
   _initExtensions() {
     this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
       .map(extensionId => ExtensionUtils.extensions[extensionId])
+      .filter(extension => BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
       .filter(extension => extension.state === ExtensionSystem.ExtensionState.ENABLED)
       .reduce((acc,extension) => {
 
@@ -173,6 +194,10 @@ var Sync = class Sync {
 
   _onExtensionStateChanged(extension) {
 
+    if(BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) >= 0) {
+      return;
+    }
+
     debug(`state of ${extension.metadata.name} changed to: ${this._getExtensionState(extension)}`);
     switch (extension.state) {
       case ExtensionSystem.ExtensionState.ENABLED: {
@@ -187,7 +212,11 @@ var Sync = class Sync {
   }
 
   async _getGistData() {
-    const { data } = await this.request.send({ url: this._getGistUrl(), method: 'GET' });
+    const { data, status } = await this.request.send({ url: this._getGistUrl(), method: 'GET' });
+    if(status != 200) {
+      return null;
+    }
+
     let extensions;
     let syncSettings;
     try {
