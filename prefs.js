@@ -55,10 +55,10 @@ const Preferences = class Preferences {
 
   onSave() {
     const gistId = this.gistIdEntry.get_text();
-    this.settings.set_string('gist-id', gistId);
+    this.settings.set_string('gist-id', gistId.trim());
 
     const gistToken = this.gistTokenEntry.get_text();
-    this.settings.set_string('gist-token', gistToken);
+    this.settings.set_string('gist-token', gistToken.trim());
 
     this.onClose();
   }
