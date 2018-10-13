@@ -14,7 +14,7 @@ curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/in
 
 * This extension depends on [gxml](https://gitlab.gnome.org/GNOME/gxml.git)
 
-# Usage
+## Usage
 
 1. Create a new gist from [here](https://gist.github.com/) I suggest you make it secret.
 2. Create a new token from [here](https://github.com/settings/tokens/new). Only gist permission is needed since we edit the gists.
