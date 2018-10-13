@@ -1,100 +1,22 @@
 # Extensions Sync
 
+Syncs gnome shell extensions and their configurations across all gnome installations with the help of gist
 
-# Automatic Installation
+![SS](https://i.imgur.com/2vJ89Zo.jpg)
+
+# Dependencies
+
+* This extension depends on [gxml](https://gitlab.gnome.org/GNOME/gxml.git)
+
+## Installation
 
 ```bash
 curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/installer.sh | bash
 ```
 
-# Manual Installation
+# Usage
 
-## Dependencies
-
-```bash
-sudo apt update
-sudo apt install git build-essential valac valadoc autoconf intltool libtool-bin automake libxml2-dev libgee-0.8-2 libgee-0.8-dev  gobject-introspection libgirepository1.0-dev
-git clone https://gitlab.gnome.org/GNOME/gxml.git --branch 0.16.3
-cd gxml
-./autogen.sh
-./configure --prefix=/usr/
-make
-sudo make install
-```
-
-## Installation
-
-```bash
-git clone https://github.com/oae/gnome-shell-extensions-sync.git
-cd gnome-shell-extensions-sync
-make install
-```
-
-## Development
-
-* Open looking glass from bash
-
-    ```bash
-    gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.gnome.Shell.Eval 'Main.createLookingGlass().toggle();'
-    ```
-
-* Reload shell from bash
-
-    ```bash
-    busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")'
-    ```
-
-* Watch logs from extension
-
-    ```bash
-    journalctl /usr/bin/gnome-shell -f -o cat | grep "\[extensions-sync\]"
-    ```
-
-* External Libraries
-
-    - Library bindings can be found in 
-        - `/usr/lib/girepository-1.0`
-        - `/usr/share/gir-1.0`
-
-    - To extract documentation from them you can use following command
-
-        ```bash
-        mkdir docs
-        g-ir-doc-tool -l gjs /usr/share/gir-1.0/libxml2-2.0.gir -o ./docs
-        ```
-
-
-## Documentations
-
-* Devdocs - http://devdocs.baznga.org/
-* GXml - https://valadoc.org/gxml-0.14/index.htm
-* gjs examples - https://github.com/optimisme/gjs-examples/
-* gjs helpers - https://github.com/satya164/gjs-helpers
-
-
-## Gist Structure
-
-```json
-{
-  "description": "Extensions sync",
-  "files": {
-    "syncSettings": {
-      "content": {
-        "lastUpdatedAt": "time",
-      }
-    },
-    "extensions": {
-      "content": {
-        "extension1": {
-          "schema1": "schema1 settings",
-          "schema2": "schema2 settings",
-        },
-        "extension2": {
-          "schema1": "schema1 settings",
-          "schema2": "schema2 settings",
-        },
-      }
-    }
-  }
-}
-```
+1. Create a new gist from [here](https://gist.github.com/) I suggest you make it secret.
+2. Create a new token from [here](https://github.com/settings/tokens/new). Only gist permission is needed since we edit the gists.
+3. Open extension settings and fill gist id from first step and gist token from second step.
+4. Enjoy!
