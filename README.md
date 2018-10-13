@@ -24,7 +24,7 @@ make install
 * Open looking glass from bash
 
     ```bash
-    gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.gnome.Shell.Eval 'Main.lookingGlass.toggle();'
+    gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell --method org.gnome.Shell.Eval 'Main.createLookingGlass().toggle();'
     ```
 
 * Reload shell from bash
