@@ -1,8 +1,9 @@
+// Copyright (c) 2018 O. Alperen Elhan
+//
+// This software is released under the MIT License.
+// https://opensource.org/licenses/MIT
+
 const St = imports.gi.St;
-
-
-const Lang = imports.lang;
-const Clutter = imports.gi.Clutter;
 
 const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;

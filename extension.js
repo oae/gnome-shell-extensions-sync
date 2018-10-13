@@ -5,8 +5,6 @@
 
 imports.searchPath.unshift(imports.misc.extensionUtils.getCurrentExtension().path);
 
-const Main = imports.ui.main;
-
 const { Sync } = imports.sync;
 const { StatusMenu } = imports.statusMenu;
 
