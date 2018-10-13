@@ -29,14 +29,6 @@ var Sync = class Sync {
     this.initializeHandlerId = null;
     this.syncedExtensions = null;
     this.shouldOverride = true;
-    this.request = new Request({
-      auth: {
-        user: 'notimportant',
-        token: `${this._getGistToken()}`,
-        realm: 'Github Api',
-        host: 'api.github.com'
-      }
-    });
   }
 
   enable() {
@@ -73,7 +65,7 @@ var Sync = class Sync {
 
     const syncData = this.getSyncData();
 
-    const { status } = await this.request.send({ url: this._getGistUrl(), method: 'PATCH', data: syncData });
+    const { status } = await this._getRequest().send({ url: this._getGistUrl(), method: 'PATCH', data: syncData });
 
     if (status != 200) {
       debug(`Failed to update gist. Status code: ${status}`);
@@ -230,7 +222,7 @@ var Sync = class Sync {
   }
 
   async _getGistData() {
-    const { data,status } = await this.request.send({ url: this._getGistUrl(),method: 'GET' });
+    const { data,status } = await this._getRequest().send({ url: this._getGistUrl(),method: 'GET' });
     if (status != 200) {
       return null;
     }
@@ -252,8 +244,18 @@ var Sync = class Sync {
     }
   }
 
-  _getLastUpdatedAt() {
+  _getRequest() {
+    return new Request({
+      auth: {
+        user: 'notimportant',
+        token: `${this._getGistToken()}`,
+        realm: 'Github Api',
+        host: 'api.github.com'
+      }
+    });
+  }
 
+  _getLastUpdatedAt() {
     return this.settings.get_string('last-updated-at');
   }
 
