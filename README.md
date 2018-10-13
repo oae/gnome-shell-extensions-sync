@@ -4,7 +4,7 @@
 # Automatic Installation
 
 ```bash
-curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/install.sh | bash
+curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/installer.sh | bash
 ```
 
 # Manual Installation
