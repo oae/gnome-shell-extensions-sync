@@ -46,7 +46,7 @@ var Sync = class Sync {
       this._initExtensions();
       this.stateChangeHandlerId = ExtensionSystem.connect(
         'extension-state-changed',
-        debounce((event,extension) => this._onExtensionStateChanged(extension),3000)
+        debounce((event,extension) => this._onExtensionStateChanged(extension),1000)
       );
     }, 3000);
   }
@@ -112,17 +112,26 @@ var Sync = class Sync {
       syncedExtension.settings.update(extensions[extensionId]);
     });
 
-    toBeInstalled.forEach(extensionId => ExtensionDownloader.installExtension(extensionId));
+    const promises = toBeInstalled.map(extensionId => new Promise((resolve, reject) => {
+      ExtensionDownloader.installExtension(extensionId, {
+        return_value(variant) {
+          const [ state ] = variant.deep_unpack();
+          if(state === 'successful') {
+            debug(`extension ${extensionId} installed successfully`);
+            const extension = ExtensionUtils.extensions[extensionId];
+            const settings = new Settings(extension);
+            settings.update(extensions[extensionId]);
+          }
 
-    setTimeout(() => {
-      toBeInstalled.forEach(extensionId => {
-        const syncedExtension = this.syncedExtensions[extensionId];
-        if(syncedExtension) {
-          syncedExtension.settings.update(extensions[extensionId]);
+          resolve();
+        },
+        return_dbus_error(_, error) {
+          debug(`error occured when installing extension ${extensionId}. error: ${error}`);
+          resolve();
         }
       });
-      this.enable();
-    }, 15000);
+    }));
+    Promise.all(promises).then(() => this.enable());
   }
 
   getSyncData() {
