@@ -16,6 +16,7 @@ sudo make install
 
 ```bash
 git clone https://github.com/oae/gnome-shell-extensions-sync.git
+cd gnome-shell-extensions-sync
 make install
 ```
 
