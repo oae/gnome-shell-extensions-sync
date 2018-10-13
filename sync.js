@@ -17,7 +17,7 @@ const { debounce, logger, setTimeout, clearTimeout } = imports.utils;
 const GIST_API_URL = 'https://api.github.com/gists';
 const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
 
-Array.prototype.diff = function(array) { return this.filter(i => array.indexOf(i) < 0) };
+Array.prototype.diff = function (array) { return this.filter(i => array.indexOf(i) < 0) };
 
 const debug = logger('sync');
 
@@ -75,7 +75,7 @@ var Sync = class Sync {
 
     const { status } = await this.request.send({ url: this._getGistUrl(), method: 'PATCH', data: syncData });
 
-    if(status != 200) {
+    if (status != 200) {
       debug(`Failed to update gist. Status code: ${status}`);
       return;
     }
@@ -90,7 +90,7 @@ var Sync = class Sync {
 
     const gistData = await this._getGistData();
 
-    if(!gistData) {
+    if (!gistData) {
       debug('cannot get extension settings from gist. Check your connection.');
       this.enable();
       return;
@@ -99,20 +99,30 @@ var Sync = class Sync {
     const { extensions } = gistData;
 
     const toBeRemoved = Object.keys(this.syncedExtensions).diff(Object.keys(extensions));
-    debug(`removed: ${JSON.stringify(toBeRemoved)}`);
-    toBeRemoved.forEach(extensionId => ExtensionDownloader.uninstallExtension(extensionId));
+    const toBeInstalled = Object.keys(extensions).diff(Object.keys(this.syncedExtensions));
+    const toBeUpdated = Object.keys(extensions).diff(toBeInstalled);
 
-    Object.keys(extensions).forEach(extensionId => {
+    debug(`Extensions to be removed: ${JSON.stringify(toBeRemoved)}`);
+    debug(`Extensions to be installed: ${JSON.stringify(toBeInstalled)}`);
+    debug(`Extensions to be updated: ${JSON.stringify(toBeUpdated)}`);
+
+    toBeRemoved.forEach(extensionId => ExtensionDownloader.uninstallExtension(extensionId));
+    toBeUpdated.forEach(extensionId => {
       const syncedExtension = this.syncedExtensions[extensionId];
-      if (syncedExtension) {
-        syncedExtension.settings.update(extensions[extensionId]);
-      }
-      else {
-        ExtensionDownloader.installExtension(extensionId);
-      }
+      syncedExtension.settings.update(extensions[extensionId]);
     });
 
-    this.enable();
+    toBeInstalled.forEach(extensionId => ExtensionDownloader.installExtension(extensionId));
+
+    setTimeout(() => {
+      toBeInstalled.forEach(extensionId => {
+        const syncedExtension = this.syncedExtensions[extensionId];
+        if(syncedExtension) {
+          syncedExtension.settings.update(extensions[extensionId]);
+        }
+      });
+      this.enable();
+    }, 15000);
   }
 
   getSyncData() {
@@ -148,7 +158,6 @@ var Sync = class Sync {
     this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
       .map(extensionId => ExtensionUtils.extensions[extensionId])
       .filter(extension => BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
-      .filter(extension => extension.state === ExtensionSystem.ExtensionState.ENABLED)
       .reduce((acc,extension) => {
 
         const metadata = extension.metadata;
@@ -194,7 +203,7 @@ var Sync = class Sync {
 
   _onExtensionStateChanged(extension) {
 
-    if(BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) >= 0) {
+    if (BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) >= 0) {
       return;
     }
 
@@ -212,8 +221,8 @@ var Sync = class Sync {
   }
 
   async _getGistData() {
-    const { data, status } = await this.request.send({ url: this._getGistUrl(), method: 'GET' });
-    if(status != 200) {
+    const { data,status } = await this.request.send({ url: this._getGistUrl(),method: 'GET' });
+    if (status != 200) {
       return null;
     }
 
@@ -221,15 +230,10 @@ var Sync = class Sync {
     let syncSettings;
     try {
       extensions = JSON.parse(data.files.extensions.content);
-    }
-    catch(e) {
-      extensions = {};
-    }
-
-    try {
       syncSettings = JSON.parse(data.files.syncSettings.content);
     }
-    catch(e) {
+    catch (e) {
+      extensions = {};
       syncSettings = {};
     }
 
