@@ -1,5 +1,14 @@
 # Extensions Sync
 
+
+# Automatic Installation
+
+```bash
+curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/install.sh | bash
+```
+
+# Manual Installation
+
 ## Dependencies
 
 ```bash
