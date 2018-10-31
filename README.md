@@ -4,15 +4,21 @@ Syncs gnome shell extensions and their configurations across all gnome installat
 
 ![SS](https://i.imgur.com/2vJ89Zo.jpg)
 
+## Dependencies
+
+* This extension depends on [gxml](https://gitlab.gnome.org/GNOME/gxml.git)
+
 ## Installation
 
+### For ubuntu
 ```bash
 curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/installer.sh | bash
 ```
 
-## Dependencies
+### For others
 
-* This extension depends on [gxml](https://gitlab.gnome.org/GNOME/gxml.git)
+* You can install it from link below
+https://extensions.gnome.org/extension/1486/extensions-sync/
 
 ## Usage
 
