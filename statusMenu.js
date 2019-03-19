@@ -22,8 +22,11 @@ const Main = imports.ui.main;
 const PanelMenu = imports.ui.panelMenu;
 const PopupMenu = imports.ui.popupMenu;
 const Gtk = imports.gi.Gtk;
-
+const ExtensionUtils = imports.misc.extensionUtils;
 const Util = imports.misc.util;
+const Gio = imports.gi.Gio;
+
+const Me = ExtensionUtils.getCurrentExtension();
 
 var StatusMenu = class StatusMenu {
 
@@ -33,23 +36,28 @@ var StatusMenu = class StatusMenu {
     Gtk.IconTheme.get_default().append_search_path(imports.misc.extensionUtils.getCurrentExtension().dir.get_child('icons').get_path());
 
     let box = new St.BoxLayout();
-    let icon = new St.Icon({ icon_name: 'extensions-sync-synced',style_class: 'system-status-icon' });
+    let gSyncedIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-synced.svg");
+    let gSyncingIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-syncing.svg");
+    let gDownloadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-download.svg");
+    let gUploadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-upload.svg");
+
+    let icon = new St.Icon({ gicon: gSyncedIcon, style_class: 'system-status-icon' });
 
     box.add(icon);
     this.button.actor.add_child(box);
 
-    let uploadMenuItem = new PopupMenu.PopupImageMenuItem('Upload','extensions-sync-upload');
+    let uploadMenuItem = new PopupMenu.PopupImageMenuItem('Upload', gUploadIcon);
     uploadMenuItem.connect('activate',async () => {
-      icon.set_icon_name('extensions-sync-syncing');
+      icon.set_gicon(gSyncingIcon);
       await sync.updateGist();
-      icon.set_icon_name('extensions-sync-synced');
+      icon.set_gicon(gSyncedIcon);
     });
 
-    let downloadMenuItem = new PopupMenu.PopupImageMenuItem('Download','extensions-sync-download');
+    let downloadMenuItem = new PopupMenu.PopupImageMenuItem('Download', gDownloadIcon);
     downloadMenuItem.connect('activate',async () => {
-      icon.set_icon_name('extensions-sync-syncing');
+      icon.set_gicon(gSyncingIcon);
       await sync.updateLocal();
-      icon.set_icon_name('extensions-sync-synced');
+      icon.set_gicon(gSyncedIcon);
     });
 
     let settingsMenuItem = new PopupMenu.PopupImageMenuItem('Settings','preferences-system-symbolic');
