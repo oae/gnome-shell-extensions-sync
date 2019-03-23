@@ -20,6 +20,8 @@ const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
 const GXml = imports.gi.GXml;
 
+const ByteArray = imports.byteArray;
+
 const logger = imports.utils.logger;
 
 const debug = logger('settings');
@@ -168,6 +170,9 @@ var Settings = class Settings {
 
     try {
       const doc = GXml.GomDocument.from_file(schemaFile);
+      if(!doc || !doc.document_element) {
+        return [];
+      }
       const schemaXml = doc.document_element.get_elements_by_tag_name('schema');
       let element;
       for (let index = 0; index < schemaXml.get_length(); index++) {
@@ -178,7 +183,7 @@ var Settings = class Settings {
       }
     }
     catch (e) {
-      debug(`${schemaName} has an error ${e}`);
+      debug(`${JSON.stringify(this.extension.metadata.name)} has an error ${e}`);
       return [];
     }
 
@@ -188,7 +193,7 @@ var Settings = class Settings {
   _getSchemaDataFromDconf(gSettings) {
     const [result, stdout, stderr] = GLib.spawn_command_line_sync(`dconf dump ${gSettings.path}`);
 
-    return stdout.toString();
+    return ByteArray.toString(stdout).toString();
   }
 
   _setSchemaDataToDconf({ gSettings, newData }) {
