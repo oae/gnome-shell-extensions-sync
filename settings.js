@@ -18,10 +18,10 @@
 
 const Gio = imports.gi.Gio;
 const GLib = imports.gi.GLib;
-const GXml = imports.gi.GXml;
 
 const ByteArray = imports.byteArray;
 
+const xmlParser = imports.utils.xmlParser;
 const logger = imports.utils.logger;
 
 const debug = logger('settings');
@@ -159,27 +159,31 @@ var Settings = class Settings {
   }
 
   _getSchemaIds() {
-
     const schemaFile = this._getSchemaFile();
 
     if (!schemaFile) {
       return [];
     }
 
-    const schemaIds = [];
+    let schemaIds = [];
 
     try {
-      const doc = GXml.GomDocument.from_file(schemaFile);
-      if(!doc || !doc.document_element) {
+      const [ok, contents] = schemaFile.load_contents(null);
+      if(!ok) {
         return [];
       }
-      const schemaXml = doc.document_element.get_elements_by_tag_name('schema');
-      let element;
-      for (let index = 0; index < schemaXml.get_length(); index++) {
-        element = schemaXml.get_element(index);
-        if(element.has_attribute('path')) {
-          schemaIds.push(element.get_attribute('id'));
+
+      const schemaJson = xmlParser(ByteArray.toString(contents));
+      const schema = schemaJson.schemalist.schema;
+
+      if(Array.isArray(schema)) {
+        schemaIds = schema.map(s => s['@path'] ? s['@id'] : undefined ).filter(s => !!s);
+      }
+      else if(typeof schema == 'object') {
+        if(schema['@path']) {
+          schemaIds.push(schema['@id']);
         }
+
       }
     }
     catch (e) {
