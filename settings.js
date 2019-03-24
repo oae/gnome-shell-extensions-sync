@@ -187,7 +187,7 @@ var Settings = class Settings {
       }
     }
     catch (e) {
-      debug(`${JSON.stringify(this.extension.metadata.name)} has an error ${e}`);
+      debug(`${this.extension.metadata.name} has an error ${e}`);
       return [];
     }
 
