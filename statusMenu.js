@@ -51,6 +51,7 @@ var StatusMenu = class StatusMenu {
       icon.set_gicon(gSyncingIcon);
       await sync.updateGist();
       icon.set_gicon(gSyncedIcon);
+      Main.notify("Settings uploaded successfully!");
     });
 
     let downloadMenuItem = new PopupMenu.PopupImageMenuItem('Download', gDownloadIcon);
@@ -58,6 +59,7 @@ var StatusMenu = class StatusMenu {
       icon.set_gicon(gSyncingIcon);
       await sync.updateLocal();
       icon.set_gicon(gSyncedIcon);
+      Main.notify("Settings downloaded successfully!");
     });
 
     let settingsMenuItem = new PopupMenu.PopupImageMenuItem('Settings','preferences-system-symbolic');
