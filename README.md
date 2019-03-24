@@ -4,41 +4,15 @@ Syncs gnome shell extensions and their configurations across all gnome installat
 
 ![SS](https://i.imgur.com/2vJ89Zo.jpg)
 
-## Dependencies
-
-* This extension depends on [gxml](https://gitlab.gnome.org/GNOME/gxml.git)
-
 ## Installation
 
-### For ubuntu
+### From [Git](https://github.com/oae/gnome-shell-extensions-sync)
+
 ```bash
 curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/installer.sh | bash
 ```
 
-### For Fedora
-```bash
-#!/bin/bash
-
-sudo dnf install -y vala intltool libgee-devel libxml2-devel
-
-rm -rf /tmp/gxml
-git clone https://gitlab.gnome.org/GNOME/gxml.git --branch 0.16.3 /tmp/gxml
-cd /tmp/gxml
-./autogen.sh
-./configure --prefix=/usr/
-make
-sudo make install
-
-rm -rf /tmp/gnome-shell-extensions-sync
-git clone https://github.com/oae/gnome-shell-extensions-sync.git /tmp/gnome-shell-extensions-sync
-cd /tmp/gnome-shell-extensions-sync
-make install
-busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'Meta.restart("Restarting…")'
-make enable
-
-```
-
-### For others
+### From [Ego](extensions.gnome.org)
 
 * You can install it from link below
 https://extensions.gnome.org/extension/1486/extensions-sync/
