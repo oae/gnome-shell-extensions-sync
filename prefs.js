@@ -16,15 +16,20 @@
 // along with Extensions Sync.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-imports.searchPath.unshift(imports.misc.extensionUtils.getCurrentExtension().path);
+window.extensionsSync = {
+  imports: imports.misc.extensionUtils.getCurrentExtension().imports
+}
+
 
 const Gtk = imports.gi.Gtk;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 
-const { getSettings } = imports.convenience;
-const { logger } = imports.utils;
+const { getSettings } = extensionsSync.imports.convenience;
+
+const { logger } = extensionsSync.imports.utils;
 const debug = logger('prefs');
+
 const Preferences = class Preferences {
 
   constructor() {

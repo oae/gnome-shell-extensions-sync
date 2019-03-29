@@ -49,7 +49,7 @@ var StatusMenu = class StatusMenu {
     let uploadMenuItem = new PopupMenu.PopupImageMenuItem('Upload', gUploadIcon);
     uploadMenuItem.connect('activate',async () => {
       icon.set_gicon(gSyncingIcon);
-      await sync.updateGist();
+      await extensionsSync.sync.updateGist();
       icon.set_gicon(gSyncedIcon);
       Main.notify("Settings uploaded successfully!");
     });
@@ -57,7 +57,7 @@ var StatusMenu = class StatusMenu {
     let downloadMenuItem = new PopupMenu.PopupImageMenuItem('Download', gDownloadIcon);
     downloadMenuItem.connect('activate',async () => {
       icon.set_gicon(gSyncingIcon);
-      await sync.updateLocal();
+      await extensionsSync.sync.updateLocal();
       icon.set_gicon(gSyncedIcon);
       Main.notify("Settings downloaded successfully!");
     });

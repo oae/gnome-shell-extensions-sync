@@ -16,16 +16,20 @@
 // along with Extensions Sync.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-imports.searchPath.unshift(imports.misc.extensionUtils.getCurrentExtension().path);
 
-const { Sync } = imports.sync;
-const { StatusMenu } = imports.statusMenu;
+window.extensionsSync = {
+  imports: imports.misc.extensionUtils.getCurrentExtension().imports
+}
+
+const { Sync } = extensionsSync.imports.sync;
+const { StatusMenu } = extensionsSync.imports.statusMenu;
+
 
 let sync;
 let statusMenu;
 function init() {
   sync = new Sync();
-  window.sync = sync;
+  extensionsSync.sync = sync;
 }
 
 function enable() {

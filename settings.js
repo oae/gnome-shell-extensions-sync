@@ -21,8 +21,7 @@ const GLib = imports.gi.GLib;
 
 const ByteArray = imports.byteArray;
 
-const xmlParser = imports.utils.xmlParser;
-const logger = imports.utils.logger;
+const { xmlParser, logger } = extensionsSync.imports.utils;
 
 const debug = logger('settings');
 
@@ -93,7 +92,7 @@ var Settings = class Settings {
   _onSettingsChanged(schema) {
     debug(`extension ${this.extension.metadata.name} is modified. emitting sync event`);
     schema.data = this._getSchemaDataFromDconf(schema.gSettings);
-    sync.emit('extensions-sync');
+    extensionsSync.sync.emit('extensions-sync');
   }
 
   _initSchemaList() {

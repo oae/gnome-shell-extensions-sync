@@ -22,10 +22,10 @@ const ExtensionUtils = imports.misc.extensionUtils;
 
 const Signals = imports.signals;
 
-const { Settings } = imports.settings;
-const { getSettings } = imports.convenience;
-const { Request } = imports.request;
-const { debounce, logger, setTimeout, clearTimeout } = imports.utils;
+const { Settings } = extensionsSync.imports.settings;
+const { getSettings } = extensionsSync.imports.convenience;
+const { Request } = extensionsSync.imports.request;
+const { debounce, logger, setTimeout, clearTimeout } = extensionsSync.imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists';
 const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
@@ -171,7 +171,7 @@ var Sync = class Sync {
   _initExtensions() {
     this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
       .map(extensionId => ExtensionUtils.extensions[extensionId])
-      .filter(extension => BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
+      .filter(extension => extension.metadata && BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
       .reduce((acc,extension) => {
 
         const metadata = extension.metadata;
@@ -217,7 +217,7 @@ var Sync = class Sync {
 
   _onExtensionStateChanged(extension) {
 
-    if (BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) >= 0) {
+    if (!extension.metadata || BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) >= 0) {
       return;
     }
 
