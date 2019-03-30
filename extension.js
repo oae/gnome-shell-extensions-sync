@@ -18,7 +18,8 @@
 
 
 window.extensionsSync = {
-  imports: imports.misc.extensionUtils.getCurrentExtension().imports
+  imports: imports.misc.extensionUtils.getCurrentExtension().imports,
+  debug: false
 }
 
 const { Sync } = extensionsSync.imports.sync;

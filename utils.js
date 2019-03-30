@@ -40,7 +40,7 @@ var setInterval = (func, millis) => {
 
 var clearInterval = id => GLib.Source.remove(id);
 
-var logger = prefix => content => log(`[extensions-sync] [${prefix}] ${content}`);
+var logger = prefix => content => extensionsSync.debug && log(`[extensions-sync] [${prefix}] ${content}`);
 
 function isObject(value) {
   const type = typeof value
