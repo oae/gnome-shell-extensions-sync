@@ -20,8 +20,6 @@ const ExtensionSystem = imports.ui.extensionSystem;
 const ExtensionDownloader = imports.ui.extensionDownloader;
 const ExtensionUtils = imports.misc.extensionUtils;
 
-const Signals = imports.signals;
-
 const { Settings } = extensionsSync.imports.settings;
 const { getSettings } = extensionsSync.imports.convenience;
 const { Request } = extensionsSync.imports.request;
@@ -73,7 +71,6 @@ var Sync = class Sync {
   }
 
   async updateGist() {
-    debug('emitted sync event');
     debug(`syncing ${Object.keys(this.syncedExtensions).length} extensions`);
 
     const syncData = this.getSyncData();
@@ -186,8 +183,6 @@ var Sync = class Sync {
         });
 
       },{});
-
-    this.emit('extensions-sync');
   }
 
   _startWatching(extension) {
@@ -200,8 +195,6 @@ var Sync = class Sync {
       extension,
       settings,
     };
-
-    this.emit('extensions-sync');
   }
 
   _stopWatching(extension) {
@@ -211,8 +204,6 @@ var Sync = class Sync {
     delete this.syncedExtensions[extension.metadata.uuid];
 
     syncedExtension.settings.stopWatching();
-
-    this.emit('extensions-sync');
   }
 
   _onExtensionStateChanged(extension) {
@@ -306,5 +297,3 @@ var Sync = class Sync {
     }
   };
 }
-
-Signals.addSignalMethods(Sync.prototype);

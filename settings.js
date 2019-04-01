@@ -90,9 +90,8 @@ var Settings = class Settings {
   }
 
   _onSettingsChanged(schema) {
-    debug(`extension ${this.extension.metadata.name} is modified. emitting sync event`);
+    debug(`extension ${this.extension.metadata.name} is modified.`);
     schema.data = this._getSchemaDataFromDconf(schema.gSettings);
-    extensionsSync.sync.emit('extensions-sync');
   }
 
   _initSchemaList() {
