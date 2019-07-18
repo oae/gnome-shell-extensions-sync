@@ -36,10 +36,10 @@ var StatusMenu = class StatusMenu {
     Gtk.IconTheme.get_default().append_search_path(imports.misc.extensionUtils.getCurrentExtension().dir.get_child('icons').get_path());
 
     let box = new St.BoxLayout();
-    let gSyncedIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-synced.svg");
-    let gSyncingIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-syncing.svg");
-    let gDownloadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-download.svg");
-    let gUploadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-upload.svg");
+    let gSyncedIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-synced-symbolic.svg");
+    let gSyncingIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-syncing-symbolic.svg");
+    let gDownloadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-download-symbolic.svg");
+    let gUploadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-upload-symbolic.svg");
 
     let icon = new St.Icon({ gicon: gSyncedIcon, style_class: 'system-status-icon' });
 
