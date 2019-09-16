@@ -44,7 +44,7 @@ var StatusMenu = class StatusMenu {
     let icon = new St.Icon({ gicon: gSyncedIcon, style_class: 'system-status-icon' });
 
     box.add(icon);
-    this.button.actor.add_child(box);
+    this.button.add_child(box);
 
     let uploadMenuItem = new PopupMenu.PopupImageMenuItem('Upload', gUploadIcon);
     uploadMenuItem.connect('activate',async () => {
