@@ -31,7 +31,7 @@ const Me = ExtensionUtils.getCurrentExtension();
 var StatusMenu = class StatusMenu {
 
   constructor() {
-    this.button = new PanelMenu.Button(1,'StatusMenu',false);
+    this.button = new PanelMenu.Button(1, extensionsSync.metadata["gettext-domain"], false);
 
     Gtk.IconTheme.get_default().append_search_path(imports.misc.extensionUtils.getCurrentExtension().dir.get_child('icons').get_path());
 
@@ -74,7 +74,7 @@ var StatusMenu = class StatusMenu {
   }
 
   enable() {
-    Main.panel.addToStatusArea('StatusMenu',this.button,0,'right');
+    Main.panel.addToStatusArea('extension-sync-status-item', this.button, 0, 'right');
   }
 
   disable() {
