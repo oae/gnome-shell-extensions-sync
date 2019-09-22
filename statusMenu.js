@@ -31,20 +31,22 @@ const Me = ExtensionUtils.getCurrentExtension();
 var StatusMenu = class StatusMenu {
 
   constructor() {
-    this.button = new PanelMenu.Button(1,'StatusMenu',false);
+    const extension = imports.misc.extensionUtils.getCurrentExtension();
 
-    Gtk.IconTheme.get_default().append_search_path(imports.misc.extensionUtils.getCurrentExtension().dir.get_child('icons').get_path());
+    this.button = new PanelMenu.Button(1, extension.metadata['gettext-domain'], false);
+
+    Gtk.IconTheme.get_default().append_search_path(extension.dir.get_child('icons').get_path());
 
     let box = new St.BoxLayout();
-    let gSyncedIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-synced.svg");
-    let gSyncingIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-syncing.svg");
-    let gDownloadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-download.svg");
-    let gUploadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-upload.svg");
+    let gSyncedIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-synced-symbolic.svg");
+    let gSyncingIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-syncing-symbolic.svg");
+    let gDownloadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-download-symbolic.svg");
+    let gUploadIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-upload-symbolic.svg");
 
     let icon = new St.Icon({ gicon: gSyncedIcon, style_class: 'system-status-icon' });
 
     box.add(icon);
-    this.button.actor.add_child(box);
+    this.button.add_child(box);
 
     let uploadMenuItem = new PopupMenu.PopupImageMenuItem('Upload', gUploadIcon);
     uploadMenuItem.connect('activate',async () => {
@@ -74,7 +76,7 @@ var StatusMenu = class StatusMenu {
   }
 
   enable() {
-    Main.panel.addToStatusArea('StatusMenu',this.button,0,'right');
+    Main.panel.addToStatusArea('extension-sync-status-item', this.button, 0, 'right');
   }
 
   disable() {
