@@ -42,6 +42,8 @@ var clearInterval = id => GLib.Source.remove(id);
 
 var logger = prefix => content => extensionsSync.debug && log(`[extensions-sync] [${prefix}] ${content}`);
 
+var diff = (source, target) => source.filter(i => target.indexOf(i) < 0);
+
 function isObject(value) {
   const type = typeof value
   return value != null && (type == 'object' || type == 'function')

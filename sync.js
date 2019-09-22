@@ -23,12 +23,10 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const { Settings } = extensionsSync.imports.settings;
 const { getSettings } = extensionsSync.imports.convenience;
 const { Request } = extensionsSync.imports.request;
-const { debounce, logger, setTimeout, clearTimeout } = extensionsSync.imports.utils;
+const { debounce, logger, setTimeout, clearTimeout, diff } = extensionsSync.imports.utils;
 
 const GIST_API_URL = 'https://api.github.com/gists';
 const BLACKLISTED_EXTENSIONS = ['extensions-sync@elhan.io'];
-
-Array.prototype.diff = function (array) { return this.filter(i => array.indexOf(i) < 0) };
 
 const debug = logger('sync');
 
@@ -100,9 +98,9 @@ var Sync = class Sync {
 
     const { extensions } = gistData;
 
-    const toBeRemoved = Object.keys(this.syncedExtensions).diff(Object.keys(extensions));
-    const toBeInstalled = Object.keys(extensions).diff(Object.keys(this.syncedExtensions));
-    const toBeUpdated = Object.keys(extensions).diff(toBeInstalled);
+    const toBeRemoved = diff(Object.keys(this.syncedExtensions), Object.keys(extensions));
+    const toBeInstalled = diff(Object.keys(extensions), Object.keys(this.syncedExtensions));
+    const toBeUpdated = diff(Object.keys(extensions), toBeInstalled);
 
     debug(`Extensions to be removed: ${JSON.stringify(toBeRemoved)}`);
     debug(`Extensions to be installed: ${JSON.stringify(toBeInstalled)}`);
