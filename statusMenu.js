@@ -31,9 +31,11 @@ const Me = ExtensionUtils.getCurrentExtension();
 var StatusMenu = class StatusMenu {
 
   constructor() {
-    this.button = new PanelMenu.Button(1, extensionsSync.metadata["gettext-domain"], false);
+    const extension = imports.misc.extensionUtils.getCurrentExtension();
 
-    Gtk.IconTheme.get_default().append_search_path(imports.misc.extensionUtils.getCurrentExtension().dir.get_child('icons').get_path());
+    this.button = new PanelMenu.Button(1, extension.metadata['gettext-domain'], false);
+
+    Gtk.IconTheme.get_default().append_search_path(extension.dir.get_child('icons').get_path());
 
     let box = new St.BoxLayout();
     let gSyncedIcon = Gio.icon_new_for_string(Me.path + "/icons/extensions-sync-synced-symbolic.svg");
