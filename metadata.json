@@ -4,7 +4,8 @@
   "name": "Extensions Sync",
   "description": "Sync all extensions and their configurations across all gnome instances through gist",
   "shell-version": [
-    "3.32"
+    "3.32",
+    "3.34",
   ],
   "url": "https://github.com/oae/gnome-shell-extensions-sync",
   "gettext-domain": "extensions-sync",

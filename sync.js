@@ -19,6 +19,7 @@
 const ExtensionSystem = imports.ui.extensionSystem;
 const ExtensionDownloader = imports.ui.extensionDownloader;
 const ExtensionUtils = imports.misc.extensionUtils;
+const Main = imports.ui.main;
 
 const { Settings } = extensionsSync.imports.settings;
 const { getSettings } = extensionsSync.imports.convenience;
@@ -43,9 +44,10 @@ var Sync = class Sync {
   enable() {
     debug('enabled');
 
+    this._initExtensions();
+
     this.initializeHandlerId = setTimeout(() => {
-      this._initExtensions();
-      this.stateChangeHandlerId = ExtensionSystem.connect(
+      this.stateChangeHandlerId = (Main.extensionManager || ExtensionSystem).connect(
         'extension-state-changed',
         debounce((event,extension) => this._onExtensionStateChanged(extension),1000)
       );
@@ -54,7 +56,8 @@ var Sync = class Sync {
 
   disable() {
     debug('disabled');
-    ExtensionSystem.disconnect(this.stateChangeHandlerId);
+
+    (Main.extensionManager || ExtensionSystem).disconnect(this.stateChangeHandlerId);
     this.stateChangeHandlerId = null;
 
     clearTimeout(this.initializeHandlerId);
@@ -164,8 +167,8 @@ var Sync = class Sync {
   }
 
   _initExtensions() {
-    this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
-      .map(extensionId => ExtensionUtils.extensions[extensionId])
+    this.syncedExtensions = (Main.extensionManager.getUuids() || Object.keys(ExtensionUtils.extensions))
+      .map(extensionId => (Main.extensionManager.lookup(extensionId) || ExtensionUtils.extensions[extensionId]))
       .filter(extension => extension.metadata && BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
       .reduce((acc,extension) => {
 
