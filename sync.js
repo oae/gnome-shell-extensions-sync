@@ -16,9 +16,11 @@
 // along with Extensions Sync.  If not, see <http://www.gnu.org/licenses/>.
 //
 
-const ExtensionSystem = imports.ui.extensionSystem;
+const Config = imports.misc.config;
 const ExtensionDownloader = imports.ui.extensionDownloader;
+const ExtensionSystem = imports.ui.extensionSystem;
 const ExtensionUtils = imports.misc.extensionUtils;
+const Main = imports.ui.main;
 
 const { Settings } = extensionsSync.imports.settings;
 const { getSettings } = extensionsSync.imports.convenience;
@@ -33,6 +35,12 @@ const debug = logger('sync');
 var Sync = class Sync {
 
   constructor() {
+    if (Config.PACKAGE_VERSION.startsWith("3.34")) {
+      this.extensionManager = Main.extensionManager;
+    } else {
+      this.extensionManager = ExtensionSystem;
+    }
+
     this.settings = getSettings('org.gnome.shell.extensions.sync');
     this.stateChangeHandlerId = null;
     this.initializeHandlerId = null;
@@ -43,9 +51,10 @@ var Sync = class Sync {
   enable() {
     debug('enabled');
 
+    this._initExtensions();
+
     this.initializeHandlerId = setTimeout(() => {
-      this._initExtensions();
-      this.stateChangeHandlerId = ExtensionSystem.connect(
+      this.stateChangeHandlerId = this.extensionManager.connect(
         'extension-state-changed',
         debounce((event,extension) => this._onExtensionStateChanged(extension),1000)
       );
@@ -54,7 +63,8 @@ var Sync = class Sync {
 
   disable() {
     debug('disabled');
-    ExtensionSystem.disconnect(this.stateChangeHandlerId);
+
+    this.extensionManager.disconnect(this.stateChangeHandlerId);
     this.stateChangeHandlerId = null;
 
     clearTimeout(this.initializeHandlerId);
@@ -164,8 +174,12 @@ var Sync = class Sync {
   }
 
   _initExtensions() {
-    this.syncedExtensions = Object.keys(ExtensionUtils.extensions)
-      .map(extensionId => ExtensionUtils.extensions[extensionId])
+    this.syncedExtensions = (Config.PACKAGE_VERSION.startsWith("3.34") ?
+        Main.extensionManager.getUuids() :
+        Object.keys(ExtensionUtils.extensions))
+      .map(extensionId => (Config.PACKAGE_VERSION.startsWith("3.34") ?
+          Main.extensionManager.lookup(extensionId) :
+          ExtensionUtils.extensions[extensionId]))
       .filter(extension => extension.metadata && BLACKLISTED_EXTENSIONS.indexOf(extension.metadata.uuid) < 0)
       .reduce((acc,extension) => {
 
