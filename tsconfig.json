@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {   
+    "lib": ["ES6"],              
+    "target": "ES6",
+    "module": "commonjs",
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "rootDir": "src",
+  },
+  "include": ["src", "@types"],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "templates"
+  ]
+}
