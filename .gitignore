@@ -80,3 +80,4 @@ extensions-sync@elhan.io*.zip
 _build
 node_modules
 @types
+dist

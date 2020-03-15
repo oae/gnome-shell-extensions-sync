@@ -32,6 +32,6 @@ class Extension {
   }
 }
 
-function init(): Extension {
+export default function (): Extension {
   return new Extension();
 }

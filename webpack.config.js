@@ -40,7 +40,11 @@ module.exports = {
   entry: ['./src/extension.ts'],
   output: {
     filename: 'extension.js',
+    library: 'init',
+    libraryTarget: 'var',
+    libraryExport: 'default',
   },
+  
 
   plugins: [new webpack.ProgressPlugin(), new MiniCssExtractPlugin({ filename: 'stylesheet.css' })],
 
