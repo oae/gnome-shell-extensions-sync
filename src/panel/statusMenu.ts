@@ -5,7 +5,6 @@ import * as Gio from '@imports/Gio-2.0';
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
 const { Button } = imports.ui.panelMenu;
-const { PopupImageMenuItem, PopupSeparatorMenuItem } = imports.ui.popupMenu;
 const Main = imports.ui.main;
 
 export class StatusMenu {
@@ -14,7 +13,6 @@ export class StatusMenu {
 
   constructor(api: Api) {
     this.api = api;
-    const extension = imports.misc.extensionUtils.getCurrentExtension();
   }
 
   show(): void {

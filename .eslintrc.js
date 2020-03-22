@@ -13,6 +13,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-misused-new': 'off',
     '@typescript-eslint/triple-slash-reference': 'off',
+    '@typescript-eslint/no-unused-vars': 'error',
     // For Gjs
     'camelcase': 'off',
     '@typescript-eslint/camelcase': 'off'
