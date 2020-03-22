@@ -1,5 +1,5 @@
 import { Github } from './providers/github';
-import { Provider } from './api';
+import { Provider, Result } from './api';
 
 export class Api {
   private provider: Provider;
@@ -9,11 +9,11 @@ export class Api {
     this.provider = new Github();
   }
 
-  upload(): void {
-    this.provider.upload();
+  upload(): Promise<Result> {
+    return this.provider.upload();
   }
 
-  download(): void {
-    this.provider.download();
+  download(): Promise<void> {
+    return this.provider.download();
   }
 }

@@ -1,10 +1,11 @@
 import { Provider, Result } from '../api';
+import { setTimeout } from '../../utils';
 
 export class Github implements Provider {
-  upload(): Result {
-    throw new Error('Method not implemented.');
+  upload(): Promise<Result> {
+    return new Promise(resolve => setTimeout(resolve, 3000));
   }
-  download(): any {
-    throw new Error('Method not implemented.');
+  download(): Promise<any> {
+    return new Promise(resolve => setTimeout(resolve, 3000));
   }
 }

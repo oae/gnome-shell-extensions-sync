@@ -1,18 +1,29 @@
-import { Api } from 'src/api';
 import { Icon } from '@imports/St-1.0';
-import * as Gio from '@imports/Gio-2.0';
-
-const Me = imports.misc.extensionUtils.getCurrentExtension();
+import { icon_new_for_string } from '@imports/Gio-2.0';
+import { getCurrentExtension, ShellExtension } from '../shell';
+import { Api } from '../api';
 
 const { Button } = imports.ui.panelMenu;
-const Main = imports.ui.main;
+const { PopupImageMenuItem, PopupSeparatorMenuItem } = imports.ui.popupMenu;
+const { panel } = imports.ui.main;
+
+export enum ActionType {
+  UPLOAD,
+  DOWNLOAD,
+}
+
+export type OnAction = (type: ActionType) => Promise<void>;
 
 export class StatusMenu {
   private api: Api;
   private button: any;
+  private extension: ShellExtension;
+  private onAction: OnAction;
 
-  constructor(api: Api) {
+  constructor(api: Api, onAction: OnAction) {
+    this.onAction = onAction;
     this.api = api;
+    this.extension = getCurrentExtension();
   }
 
   show(): void {
@@ -20,7 +31,7 @@ export class StatusMenu {
       this.createButton();
     }
 
-    Main.panel.addToStatusArea('extensions-sync', this.button);
+    panel.addToStatusArea('extensions-sync', this.button);
   }
 
   hide(): void {
@@ -30,20 +41,52 @@ export class StatusMenu {
 
   private createButton(): void {
     this.button = new Button(0, _('Sync Settings'));
-    this.button.icon = this.createUploadIcon();
+    this.button.icon = this.createIcon('synced');
     this.button.add_actor(this.button.icon);
+
+    this.button.menu.addMenuItem(
+      this.createMenuItem(_('Upload'), 'upload', async type => {
+        this.button.icon.set_gicon(this.createIcon('syncing').gicon);
+        try {
+          await this.onAction(type);
+          log('uploaded');
+        } catch (ex) {
+          log(`error occured during upload ${ex}`);
+        }
+        this.button.icon.set_gicon(this.createIcon('synced').gicon);
+      }),
+    );
+    this.button.menu.addMenuItem(
+      this.createMenuItem(_('Download'), 'download', async type => {
+        this.button.icon.set_gicon(this.createIcon('syncing').gicon);
+        try {
+          await this.onAction(type);
+          log('uploaded');
+        } catch (ex) {
+          log(`error occured during download ${ex}`);
+        }
+        this.button.icon.set_gicon(this.createIcon('synced').gicon);
+      }),
+    );
+    this.button.menu.addMenuItem(new PopupSeparatorMenuItem());
+    this.button.menu.addMenuItem(this.createMenuItem(_('Preferences'), 'preferences'));
   }
 
-  private createUploadIcon(): any {
-    return this.createIcon(`${Me.path}/icons/extensions-sync-synced-symbolic.svg`);
+  private createMenuItem(menuTitle: string, actionType: string, onClick?: OnAction): any {
+    const menuItem = new PopupImageMenuItem(`${menuTitle}`, this.createIcon(`${actionType}`).gicon);
+    if (onClick) {
+      menuItem.connect('activate', async () => {
+        await onClick(ActionType[actionType.toUpperCase()]);
+      });
+    }
+
+    return menuItem;
   }
 
-  private createIcon(iconPath: string): Icon {
-    const icon = new Icon({
-      gicon: Gio.icon_new_for_string(iconPath),
+  private createIcon(iconType: string): Icon {
+    return new Icon({
+      gicon: icon_new_for_string(`${this.extension.path}/icons/extensions-sync-${iconType}-symbolic.svg`),
       style_class: 'system-status-icon',
     });
-
-    return icon;
   }
 }

@@ -3,12 +3,12 @@ export enum Status {
   FAIL,
 }
 
-export interface Result {
-  status: Status;
+export class Result {
+  status?: Status;
   response: any;
 }
 
 export interface Provider {
-  upload(): Result;
-  download(): any;
+  upload(): Promise<Result>;
+  download(): Promise<any>;
 }
