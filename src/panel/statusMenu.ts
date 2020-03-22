@@ -1,10 +1,9 @@
-import { Api } from "src/api";
+import { Api } from 'src/api';
+import { Icon } from '@imports/St-1.0';
+import * as Gio from '@imports/Gio-2.0';
 
 const Me = imports.misc.extensionUtils.getCurrentExtension();
 
-const { IconTheme } = imports.gi.Gtk;
-const { BoxLayout, Icon } = imports.gi.St;
-const Gio = imports.gi.Gio;
 const { Button } = imports.ui.panelMenu;
 const { PopupImageMenuItem, PopupSeparatorMenuItem } = imports.ui.popupMenu;
 const Main = imports.ui.main;
@@ -23,7 +22,7 @@ export class StatusMenu {
       this.createButton();
     }
 
-    Main.panel.addToStatusArea("extensions-sync", this.button);
+    Main.panel.addToStatusArea('extensions-sync', this.button);
   }
 
   hide(): void {
@@ -32,7 +31,7 @@ export class StatusMenu {
   }
 
   private createButton(): void {
-    this.button = new Button(0, _("Sync Settings"));
+    this.button = new Button(0, _('Sync Settings'));
     this.button.icon = this.createUploadIcon();
     this.button.add_actor(this.button.icon);
   }
@@ -43,10 +42,12 @@ export class StatusMenu {
     );
   }
 
-  private createIcon(iconPath: string): any {
-    return new Icon({
+  private createIcon(iconPath: string): Icon {
+    const icon = new Icon({
       gicon: Gio.icon_new_for_string(iconPath),
-      style_class: "system-status-icon"
+      style_class: 'system-status-icon'
     });
+
+    return icon;
   }
 }

@@ -11,6 +11,7 @@ module.exports = {
     'plugin:@typescript-eslint/recommended', // Uses the recommended rules from the @typescript-eslint/eslint-plugin
   ],
   rules: {
+    'quotes': [2, 'single', { 'avoidEscape': true }],
     'no-debugger': 'off',
     '@typescript-eslint/no-explicit-any': 'off',
     '@typescript-eslint/no-misused-new': 'off',

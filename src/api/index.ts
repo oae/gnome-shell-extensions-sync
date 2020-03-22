@@ -1,5 +1,5 @@
-import { Github } from "./providers/github";
-import { Provider } from "./api";
+import { Github } from './providers/github';
+import { Provider } from './api';
 
 export class Api {
   private provider: Provider;
