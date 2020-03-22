@@ -1,37 +1,30 @@
-/* extension.js
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program.  If not, see <http://www.gnu.org/licenses/>.
- *
- * SPDX-License-Identifier: GPL-2.0-or-later
- */
-
-/* exported init */
-
-import { debug } from './debug'
-import './stylesheet.scss';
-import './metadata.json'
+import "./styles/stylesheet.scss";
+import { StatusMenu } from "./panel/statusMenu";
+import { Sync } from "./sync/sync";
+import { Api } from "./api";
 
 class Extension {
+  private sync: Sync;
+  private statusMenu: StatusMenu;
+  private api: Api;
+
+  constructor() {
+    this.api = new Api();
+    this.sync = new Sync();
+    this.statusMenu = new StatusMenu(this.api);
+  }
+
   enable(): void {
-    debug('-------------------enabled-------------------')
+    this.statusMenu.show();
+    this.sync.start();
   }
 
   disable(): void {
-    debug('-------------------disabled-------------------')
+    this.statusMenu.hide();
+    this.sync.stop();
   }
 }
 
-export default function (): Extension {
+export default function(): Extension {
   return new Extension();
 }
