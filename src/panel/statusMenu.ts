@@ -37,15 +37,13 @@ export class StatusMenu {
   }
 
   private createUploadIcon(): any {
-    return this.createIcon(
-      `${Me.path}/icons/extensions-sync-synced-symbolic.svg`
-    );
+    return this.createIcon(`${Me.path}/icons/extensions-sync-synced-symbolic.svg`);
   }
 
   private createIcon(iconPath: string): Icon {
     const icon = new Icon({
       gicon: Gio.icon_new_for_string(iconPath),
-      style_class: 'system-status-icon'
+      style_class: 'system-status-icon',
     });
 
     return icon;

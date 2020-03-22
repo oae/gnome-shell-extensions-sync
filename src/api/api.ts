@@ -1,6 +1,6 @@
 export enum Status {
   SUCCESS,
-  FAIL
+  FAIL,
 }
 
 export interface Result {
