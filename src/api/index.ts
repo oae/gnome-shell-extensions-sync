@@ -16,4 +16,8 @@ export class Api {
   download(): Promise<void> {
     return this.provider.download();
   }
+
+  getName(): string {
+    return this.provider.getName();
+  }
 }

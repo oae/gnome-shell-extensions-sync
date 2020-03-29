@@ -11,4 +11,5 @@ export class Result {
 export interface Provider {
   upload(): Promise<Result>;
   download(): Promise<any>;
+  getName(): string;
 }

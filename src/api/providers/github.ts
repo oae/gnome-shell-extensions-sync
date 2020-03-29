@@ -8,4 +8,7 @@ export class Github implements Provider {
   download(): Promise<any> {
     return new Promise((resolve) => setTimeout(resolve, 3000));
   }
+  getName(): string {
+    return 'Github';
+  }
 }
