@@ -1,5 +1,20 @@
 import { Github } from './providers/github';
-import { Provider, Result } from './api';
+
+export enum Status {
+  SUCCESS,
+  FAIL,
+}
+
+export class Result {
+  status?: Status;
+  response: any;
+}
+
+export interface Provider {
+  upload(): Promise<Result>;
+  download(): Promise<any>;
+  getName(): string;
+}
 
 export class Api {
   private provider: Provider;

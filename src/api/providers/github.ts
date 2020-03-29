@@ -1,4 +1,4 @@
-import { Provider, Result } from '../api';
+import { Provider, Result } from '../';
 import { setTimeout } from '../../utils';
 
 export class Github implements Provider {
