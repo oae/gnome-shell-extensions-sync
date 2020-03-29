@@ -35,6 +35,6 @@ export class SyncExtension {
   }
 }
 
-export default function(): SyncExtension {
+export default function (): SyncExtension {
   return new SyncExtension();
 }

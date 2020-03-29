@@ -45,7 +45,7 @@ export class StatusMenu {
     this.button.add_actor(this.button.icon);
 
     this.button.menu.addMenuItem(
-      this.createMenuItem(_('Upload'), 'upload', async type => {
+      this.createMenuItem(_('Upload'), 'upload', async (type) => {
         this.button.icon.set_gicon(this.createIcon('syncing').gicon);
         try {
           await this.onAction(type);
@@ -57,7 +57,7 @@ export class StatusMenu {
       }),
     );
     this.button.menu.addMenuItem(
-      this.createMenuItem(_('Download'), 'download', async type => {
+      this.createMenuItem(_('Download'), 'download', async (type) => {
         this.button.icon.set_gicon(this.createIcon('syncing').gicon);
         try {
           await this.onAction(type);
