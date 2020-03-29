@@ -22,3 +22,5 @@ export interface ShellExtension {
 }
 
 export const getCurrentExtension = (): ShellExtension => imports.misc.extensionUtils.getCurrentExtension();
+
+export const notify = (text: string): void => imports.ui.main.notify(text);

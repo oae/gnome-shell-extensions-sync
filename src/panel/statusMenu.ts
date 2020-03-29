@@ -1,27 +1,18 @@
 import { Icon } from '@imports/St-1.0';
 import { icon_new_for_string } from '@imports/Gio-2.0';
-import { getCurrentExtension, ShellExtension } from '../shell';
+import { getCurrentExtension, ShellExtension, notify } from '../shell';
 import { Api } from '../api';
 
 const { Button } = imports.ui.panelMenu;
 const { PopupImageMenuItem, PopupSeparatorMenuItem } = imports.ui.popupMenu;
 const { panel } = imports.ui.main;
 
-export enum ActionType {
-  UPLOAD,
-  DOWNLOAD,
-}
-
-export type OnAction = (type: ActionType) => Promise<void>;
-
 export class StatusMenu {
   private api: Api;
   private button: any;
   private extension: ShellExtension;
-  private onAction: OnAction;
 
-  constructor(api: Api, onAction: OnAction) {
-    this.onAction = onAction;
+  constructor(api: Api) {
     this.api = api;
     this.extension = getCurrentExtension();
   }
@@ -45,26 +36,16 @@ export class StatusMenu {
     this.button.add_actor(this.button.icon);
 
     this.button.menu.addMenuItem(
-      this.createMenuItem(_('Upload'), 'upload', async (type) => {
+      this.createMenuItem(_('Upload'), 'upload', async () => {
         this.button.icon.set_gicon(this.createIcon('syncing').gicon);
-        try {
-          await this.onAction(type);
-          log('uploaded');
-        } catch (ex) {
-          log(`error occured during upload ${ex}`);
-        }
+        await this.uploadAction();
         this.button.icon.set_gicon(this.createIcon('synced').gicon);
       }),
     );
     this.button.menu.addMenuItem(
-      this.createMenuItem(_('Download'), 'download', async (type) => {
+      this.createMenuItem(_('Download'), 'download', async () => {
         this.button.icon.set_gicon(this.createIcon('syncing').gicon);
-        try {
-          await this.onAction(type);
-          log('uploaded');
-        } catch (ex) {
-          log(`error occured during download ${ex}`);
-        }
+        await this.downloadAction();
         this.button.icon.set_gicon(this.createIcon('synced').gicon);
       }),
     );
@@ -72,11 +53,11 @@ export class StatusMenu {
     this.button.menu.addMenuItem(this.createMenuItem(_('Preferences'), 'preferences'));
   }
 
-  private createMenuItem(menuTitle: string, actionType: string, onClick?: OnAction): any {
+  private createMenuItem(menuTitle: string, actionType: string, onClick?: () => Promise<void>): any {
     const menuItem = new PopupImageMenuItem(`${menuTitle}`, this.createIcon(`${actionType}`).gicon);
     if (onClick) {
       menuItem.connect('activate', async () => {
-        await onClick(ActionType[actionType.toUpperCase()]);
+        await onClick();
       });
     }
 
@@ -88,5 +69,27 @@ export class StatusMenu {
       gicon: icon_new_for_string(`${this.extension.path}/icons/extensions-sync-${iconType}-symbolic.svg`),
       style_class: 'system-status-icon',
     });
+  }
+
+  private async uploadAction(): Promise<void> {
+    try {
+      notify(_(`Uploading settings to ${this.api.getName()}`));
+      await this.api.upload();
+      notify(_(`Settings successfully uploaded to ${this.api.getName()}`));
+    } catch (ex) {
+      notify(_(`Error occured while uploading settings to ${this.api.getName()}. Please check the logs.`));
+      log(`error occured during upload ${ex}`);
+    }
+  }
+
+  private async downloadAction(): Promise<void> {
+    try {
+      notify(_(`Downloading settings from ${this.api.getName()}`));
+      await this.api.download();
+      notify(_(`Settings successfully downloaded from ${this.api.getName()}`));
+    } catch (ex) {
+      notify(_(`Error occured while downloading settings from ${this.api.getName()}. Please check the logs.`));
+      log(`error occured during download ${ex}`);
+    }
   }
 }
