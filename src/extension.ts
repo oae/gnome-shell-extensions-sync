@@ -1,6 +1,6 @@
 import './styles/stylesheet.scss';
 import { StatusMenu } from './panel/statusMenu';
-import { Sync } from './sync/sync';
+import { Sync } from './sync';
 import { Api } from './api';
 
 export class SyncExtension {
