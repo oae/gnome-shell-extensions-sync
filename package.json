@@ -4,13 +4,16 @@
   "author": "Alperen Elhan <alperen@elhan.io>",
   "license": "MIT",
   "scripts": {
-    "build": "yarn run build:types && yarn run build:ts",
-    "build:ts": "yarn run clear:ts && webpack",
-    "build:types": "yarn run clear:types && ts-for-gir generate",
-    "clear:types": "rm -rf ./@types",
-    "clear:ts": "rm -rf ./dist",
-    "clear": "yarn run clear:ts && yarn run build:types",
-    "watch": "yarn run build -- --watch",
+    "build": "yarn run build:types && yarn run build:ts && yarn run build:extension",
+    "clean": "yarn run clean:ts && yarn run build:types",
+    "build:types": "yarn run clean:types && ts-for-gir generate",
+    "clean:types": "rm -rf ./@types",
+    "build:ts": "yarn run clean:ts && webpack",
+    "clean:ts": "rm -rf ./dist",
+    "build:extension": "yarn run build:schema",
+    "build:schema": "yarn run clean:schema && glib-compile-schemas ./resources/schemas --targetdir=./dist/schemas/",
+    "clean:schema": "rm -rf ./dist/schemas/*.compiled",
+    "watch": "yarn run build && yarn run webpack --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --ext .ts src/"
   },
@@ -46,5 +49,6 @@
     "typescript": "^3.8.3",
     "webpack": "^4.42.1",
     "webpack-cli": "^3.3.11"
-  }
+  },
+  "dependencies": {}
 }

@@ -20,6 +20,7 @@ module.exports = {
     new CopyPlugin([
       { from: './resources/icons', to: 'icons' },
       { from: './resources/metadata.json', to: 'metadata.json' },
+      { from: './resources/schemas', to: 'schemas' }
     ])
   ],
 
