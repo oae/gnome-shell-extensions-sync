@@ -1,8 +1,14 @@
+import { EventEmitter } from 'events';
 import { Github } from './providers/github';
 
 export enum Status {
   SUCCESS,
   FAIL,
+}
+
+export enum ApiEvents {
+  UPLOAD = 'UPLOAD',
+  DOWNLOAD = 'DOWNLOAD',
 }
 
 export class Result {
@@ -12,24 +18,28 @@ export class Result {
 
 export interface Provider {
   upload(): Promise<Result>;
-  download(): Promise<any>;
+  download(): Promise<Result>;
   getName(): string;
 }
 
 export class Api {
   private provider: Provider;
+  private eventEmitter: EventEmitter;
 
-  constructor() {
+  constructor(eventEmitter: EventEmitter) {
     // We use github as a provider for now.
     this.provider = new Github();
+    this.eventEmitter = eventEmitter;
   }
 
-  upload(): Promise<Result> {
-    return this.provider.upload();
+  async upload(): Promise<void> {
+    const result: Result = await this.provider.upload();
+    this.eventEmitter.emit(ApiEvents.UPLOAD, result);
   }
 
-  download(): Promise<void> {
-    return this.provider.download();
+  async download(): Promise<void> {
+    const result: Result = await this.provider.download();
+    this.eventEmitter.emit(ApiEvents.DOWNLOAD, result);
   }
 
   getName(): string {
