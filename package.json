@@ -52,6 +52,7 @@
     "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "events": "^3.1.0"
+    "events": "^3.1.0",
+    "grest": "^1.2.0"
   }
 }

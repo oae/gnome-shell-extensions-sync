@@ -1,7 +1,8 @@
 import { EventEmitter } from 'events';
 import { Github } from './providers/github';
 import { logger } from '../utils';
-import { notify } from '../shell';
+import { notify, getCurrentExtensionSettings } from '../shell';
+import { Settings } from '@imports/Gio-2.0';
 
 const debug = logger('api');
 
@@ -17,9 +18,20 @@ export enum ApiEvents {
   DOWNLOAD_FINISHED = 'DOWNLOAD_FINISHED',
 }
 
-export class Result {
-  status?: Status;
-  response: any;
+export type Result = {
+  syncSettings: {
+    lastUpdatedAt: Date;
+    autoSync: boolean;
+  };
+  extensions: {
+    [key: string]: {
+      [key: string]: string;
+    };
+  };
+};
+
+export enum ProviderTypes {
+  GITHUB,
 }
 
 export interface Provider {
@@ -31,13 +43,15 @@ export interface Provider {
 export class Api {
   private provider: Provider;
   private eventEmitter: EventEmitter;
+  private settings: Settings;
 
   constructor(eventEmitter: EventEmitter) {
-    // We use github as a provider for now.
-    this.provider = new Github();
+    this.settings = getCurrentExtensionSettings();
+    this.provider = this.getProvider();
     this.eventEmitter = eventEmitter;
     this.eventEmitter.on(ApiEvents.UPLOAD, this.upload.bind(this));
     this.eventEmitter.on(ApiEvents.DOWNLOAD, this.download.bind(this));
+    this.settings.connect('changed::provider', this.updateProvider.bind(this));
   }
 
   async upload(): Promise<void> {
@@ -66,5 +80,27 @@ export class Api {
 
   getName(): string {
     return this.provider.getName();
+  }
+
+  private getProvider(): Provider {
+    const providerType = this.settings.get_enum('provider') as ProviderTypes;
+
+    switch (providerType) {
+      case ProviderTypes.GITHUB:
+        return this.createGithubProvider();
+      default:
+        return this.createGithubProvider();
+    }
+  }
+
+  private updateProvider(): void {
+    this.provider = this.getProvider();
+  }
+
+  private createGithubProvider(): Provider {
+    const gistId = this.settings.get_string('github-gist-id');
+    const gistToken = this.settings.get_string('github-gist-token');
+
+    return new Github(gistId, gistToken);
   }
 }

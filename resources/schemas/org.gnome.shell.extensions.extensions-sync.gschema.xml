@@ -1,12 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <schemalist gettext-domain="gnome-shell-extensions">
+  <enum id="org.gnome.shell.extensions.extensions-sync.provider">
+    <value nick="Github" value="0" />
+  </enum>
+
   <schema path="/org/gnome/shell/extensions/extensions-sync/" id="org.gnome.shell.extensions.extensions-sync">
-    <key type="s" name="gist-id">
+    <key type="s" name="github-gist-id">
       <default>""</default>
       <summary>Gist Id</summary>
       <description>You can create a gist from https://gist.github.com/ and use it's id</description>
     </key>
-    <key type="s" name="gist-token">
+    <key type="s" name="github-gist-token">
       <default>""</default>
       <summary>Github token</summary>
       <description>Generate a new token from https://github.com/settings/tokens/new with gist permission and use it</description>
@@ -20,6 +24,11 @@
       <default>""</default>
       <summary>Last update time</summary>
       <description>Last update time</description>
+    </key>
+    <key name="provider" enum="org.gnome.shell.extensions.extensions-sync.provider">
+      <default>'Github'</default>
+      <summary>Provider for synchronization.</summary>
+      <description>Provider for synchronization.</description>
     </key>
   </schema>
 </schemalist>
