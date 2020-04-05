@@ -36,6 +36,9 @@ export class StatusMenu {
       this.button = this.createButton();
     }
 
+    this.eventEmitter.on(ApiEvents.UPLOAD, this.disableButton.bind(this));
+    this.eventEmitter.on(ApiEvents.DOWNLOAD, this.disableButton.bind(this));
+
     this.eventEmitter.on(ApiEvents.UPLOAD_FINISHED, this.enableButton.bind(this));
     this.eventEmitter.on(ApiEvents.DOWNLOAD_FINISHED, this.enableButton.bind(this));
 
@@ -48,6 +51,9 @@ export class StatusMenu {
       this.button = undefined;
     }
 
+    this.eventEmitter.off(ApiEvents.UPLOAD, this.disableButton.bind(this));
+    this.eventEmitter.off(ApiEvents.DOWNLOAD, this.disableButton.bind(this));
+
     this.eventEmitter.off(ApiEvents.UPLOAD_FINISHED, this.enableButton.bind(this));
     this.eventEmitter.off(ApiEvents.DOWNLOAD_FINISHED, this.enableButton.bind(this));
   }
@@ -59,16 +65,10 @@ export class StatusMenu {
     newButton.add_actor(newButton.icon);
 
     newButton.menu.addMenuItem(
-      this.createMenuItem(_('Upload'), 'upload', () => {
-        this.disableButton();
-        this.eventEmitter.emit(ApiEvents.UPLOAD);
-      }),
+      this.createMenuItem(_('Upload'), 'upload', () => this.eventEmitter.emit(ApiEvents.UPLOAD)),
     );
     newButton.menu.addMenuItem(
-      this.createMenuItem(_('Download'), 'download', () => {
-        this.disableButton();
-        this.eventEmitter.emit(ApiEvents.DOWNLOAD);
-      }),
+      this.createMenuItem(_('Download'), 'download', () => this.eventEmitter.emit(ApiEvents.DOWNLOAD)),
     );
     newButton.menu.addMenuItem(new PopupSeparatorMenuItem());
     newButton.menu.addMenuItem(this.createMenuItem(_('Preferences'), 'preferences'));
@@ -103,6 +103,7 @@ export class StatusMenu {
     if (this.button !== undefined) {
       this.button.set_reactive(false);
       this.button.icon.set_gicon(this.createIcon('syncing').gicon);
+      this.button.menu.close();
     }
   }
 }
