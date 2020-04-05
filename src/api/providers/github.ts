@@ -1,6 +1,6 @@
 import { Context as request } from 'grest/src/app/Context/Context';
 
-import { Provider, Result } from '../';
+import { Provider, SyncData, Status } from '../';
 import { setTimeout } from '../../utils';
 
 export class Github implements Provider {
@@ -13,11 +13,12 @@ export class Github implements Provider {
     this.gistToken = gistToken;
   }
 
-  async upload(): Promise<Result> {
+  async upload(syncData: SyncData): Promise<Status> {
+    log(`uploading ${JSON.stringify(syncData, null, 2)}`);
     return new Promise((resolve) => setTimeout(resolve, 3000));
   }
 
-  async download(): Promise<Result> {
+  async download(): Promise<SyncData> {
     const { body } = await request.fetch(`${Github.GIST_URL}/${this.gistId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',

@@ -18,7 +18,7 @@ export enum ApiEvents {
   DOWNLOAD_FINISHED = 'DOWNLOAD_FINISHED',
 }
 
-export type Result = {
+export type SyncData = {
   syncSettings: {
     lastUpdatedAt: Date;
     autoSync: boolean;
@@ -35,8 +35,8 @@ export enum ProviderTypes {
 }
 
 export interface Provider {
-  upload(): Promise<Result>;
-  download(): Promise<Result>;
+  upload(syncData: SyncData): Promise<Status>;
+  download(): Promise<SyncData>;
   getName(): string;
 }
 
@@ -56,8 +56,11 @@ export class Api {
 
   async upload(): Promise<void> {
     try {
-      const result: Result = await this.provider.upload();
-      this.eventEmitter.emit(ApiEvents.UPLOAD_FINISHED, result);
+      const status: Status = await this.provider.upload({
+        syncSettings: { lastUpdatedAt: new Date(), autoSync: false },
+        extensions: {},
+      });
+      this.eventEmitter.emit(ApiEvents.UPLOAD_FINISHED, status);
       notify(_(`Settings successfully uploaded to ${this.getName()}`));
     } catch (ex) {
       this.eventEmitter.emit(ApiEvents.UPLOAD_FINISHED, undefined, ex);
@@ -68,7 +71,7 @@ export class Api {
 
   async download(): Promise<void> {
     try {
-      const result: Result = await this.provider.download();
+      const result: SyncData = await this.provider.download();
       this.eventEmitter.emit(ApiEvents.DOWNLOAD_FINISHED, result);
       notify(_(`Settings successfully downloaded from ${this.getName()}`));
     } catch (ex) {
