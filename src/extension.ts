@@ -14,7 +14,7 @@ export class SyncExtension {
     this.eventEmitter = new EventEmitter();
     this.api = new Api(this.eventEmitter);
     this.sync = new Sync(this.eventEmitter);
-    this.statusMenu = new StatusMenu(this.api, this.eventEmitter);
+    this.statusMenu = new StatusMenu(this.eventEmitter);
   }
 
   enable(): void {
