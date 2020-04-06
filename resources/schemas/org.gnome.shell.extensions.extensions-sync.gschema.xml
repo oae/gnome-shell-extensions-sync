@@ -2,6 +2,7 @@
 <schemalist gettext-domain="gnome-shell-extensions">
   <enum id="org.gnome.shell.extensions.extensions-sync.provider">
     <value nick="Github" value="0" />
+    <value nick="Gitlab" value="1" />
   </enum>
 
   <schema path="/org/gnome/shell/extensions/extensions-sync/" id="org.gnome.shell.extensions.extensions-sync">
@@ -14,6 +15,21 @@
       <default>""</default>
       <summary>Github token</summary>
       <description>Generate a new token from https://github.com/settings/tokens/new with gist permission and use it</description>
+    </key>
+    <key type="s" name="gitlab-snippet-id">
+      <default>""</default>
+      <summary>Snippet Id</summary>
+      <description>Snippet Id</description>
+    </key>
+    <key type="s" name="gitlab-snippet-token">
+      <default>""</default>
+      <summary>Snippet token</summary>
+      <description>Snippet token</description>
+    </key>
+    <key type="s" name="gitlab-api-url">
+      <default>""</default>
+      <summary>Gitlab Api Url</summary>
+      <description>Gitlab Api Url</description>
     </key>
     <key type="b" name="auto-sync">
       <default>false</default>

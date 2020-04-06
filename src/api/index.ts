@@ -3,6 +3,7 @@ import { Github } from './providers/github';
 import { logger } from '../utils';
 import { notify, getCurrentExtensionSettings } from '../shell';
 import { Settings } from '@imports/Gio-2.0';
+import { Gitlab } from './providers/gitlab';
 
 const debug = logger('api');
 
@@ -32,6 +33,7 @@ export type SyncData = {
 
 export enum ProviderTypes {
   GITHUB,
+  GITLAB,
 }
 
 export interface Provider {
@@ -87,10 +89,13 @@ export class Api {
 
   private getProvider(): Provider {
     const providerType = this.settings.get_enum('provider') as ProviderTypes;
+    debug(`changing provider to ${ProviderTypes[providerType]}`);
 
     switch (providerType) {
       case ProviderTypes.GITHUB:
         return this.createGithubProvider();
+      case ProviderTypes.GITLAB:
+        return this.createGitlabProvider();
       default:
         return this.createGithubProvider();
     }
@@ -105,5 +110,13 @@ export class Api {
     const gistToken = this.settings.get_string('github-gist-token');
 
     return new Github(gistId, gistToken);
+  }
+
+  private createGitlabProvider(): Provider {
+    const snippetId = this.settings.get_string('gitlab-snippet-id');
+    const snippetToken = this.settings.get_string('gitlab-snippet-token');
+    const apiUrl = this.settings.get_string('gitlab-api-url') || undefined;
+
+    return new Gitlab(snippetId, snippetToken, apiUrl);
   }
 }

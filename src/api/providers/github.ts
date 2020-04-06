@@ -4,11 +4,11 @@ import { Provider, SyncData, Status } from '../';
 import { setTimeout } from '../../utils';
 
 export class Github implements Provider {
-  private static GIST_URL = 'https://api.github.com/gists';
+  private static GIST_API_URL = 'https://api.github.com/gists';
   private gistId: string;
   private gistToken: string;
 
-  constructor(gistId, gistToken) {
+  constructor(gistId: string, gistToken: string) {
     this.gistId = gistId;
     this.gistToken = gistToken;
   }
@@ -19,7 +19,7 @@ export class Github implements Provider {
   }
 
   async download(): Promise<SyncData> {
-    const { body } = await request.fetch(`${Github.GIST_URL}/${this.gistId}`, {
+    const { body } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
         Authorization: `token ${this.gistToken}`,
