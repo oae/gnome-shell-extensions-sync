@@ -58,9 +58,7 @@ const getExtensionSchemas = (extensionId: string): any => {
 
   const { stdout } = execute(`find -L ${extension.path} -iname "*.xml" -exec grep -l "schemalist" {} +`);
   if (!stdout) {
-    return {
-      [extension.metadata.uuid]: {},
-    };
+    return {};
   }
 
   const schemaFiles = stdout.trim().split('\n');
@@ -76,10 +74,10 @@ const getExtensionSchemas = (extensionId: string): any => {
 
       if (Array.isArray(schema)) {
         const multipleSchemaObj = schema.reduce((acc, schemaObj) => {
-          if (schemaObj['@_path'] && schemaObj['@_id']) {
+          if (schemaObj['@_path']) {
             return {
               ...acc,
-              [schemaObj['@_id']]: schemaObj['@_path'],
+              [schemaObj['@_path']]: {},
             };
           }
         }, {});
@@ -88,19 +86,17 @@ const getExtensionSchemas = (extensionId: string): any => {
           ...multipleSchemaObj,
           ...schemaJsonAcc,
         };
-      } else if (schema['@_path'] && schema['@_id']) {
+      } else if (schema['@_path']) {
         return {
           ...schemaJsonAcc,
-          [schema['@_id']]: schema['@_path'],
+          [schema['@_path']]: {},
         };
       }
 
       return schemaJsonAcc;
     }, {});
 
-  return {
-    [extension.metadata.uuid]: foundSchemas,
-  };
+  return foundSchemas;
 };
 
 export const getCurrentExtension = (): ShellExtension => imports.misc.extensionUtils.getCurrentExtension();
@@ -128,7 +124,30 @@ export const getAllExtensionSchemas = (): any => {
   return extensions.reduce((extensionAcc, extension) => {
     return {
       ...extensionAcc,
-      ...getExtensionSchemas(extension.metadata.uuid),
+      [extension.metadata.uuid]: getExtensionSchemas(extension.metadata.uuid),
+    };
+  }, {});
+};
+
+const getExtensionConfigData = (extensionId: string): any => {
+  const schemas = getExtensionSchemas(extensionId);
+
+  return Object.keys(schemas).reduce((acc, schema) => {
+    const { stdout } = execute(`dconf dump ${schema}`);
+    return {
+      ...acc,
+      [schema]: stdout,
+    };
+  }, {});
+};
+
+export const getAllExtensionConfigData = (): any => {
+  const extensions = getAllExtensions(ExtensionType.PER_USER);
+
+  return extensions.reduce((extensionAcc, extension) => {
+    return {
+      ...extensionAcc,
+      [extension.metadata.uuid]: getExtensionConfigData(extension.metadata.uuid),
     };
   }, {});
 };
