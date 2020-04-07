@@ -1,7 +1,7 @@
 import { EventEmitter } from 'events';
 import { Github } from './providers/github';
 import { logger } from '../utils';
-import { notify, getCurrentExtensionSettings } from '../shell';
+import { notify, getCurrentExtensionSettings, getAllExtensionConfigData } from '../shell';
 import { Settings } from '@imports/Gio-2.0';
 import { Gitlab } from './providers/gitlab';
 
@@ -59,9 +59,15 @@ export class Api {
   async upload(): Promise<void> {
     try {
       const status: Status = await this.provider.upload({
-        syncSettings: { lastUpdatedAt: new Date(), autoSync: false },
-        extensions: {},
+        syncSettings: {
+          lastUpdatedAt: new Date(),
+          autoSync: this.settings.get_boolean('auto-sync'),
+        },
+        extensions: getAllExtensionConfigData(),
       });
+      if (status === Status.FAIL) {
+        throw new Error('Could not upload');
+      }
       this.eventEmitter.emit(ApiEvents.UPLOAD_FINISHED, status);
       notify(_(`Settings successfully uploaded to ${this.getName()}`));
     } catch (ex) {

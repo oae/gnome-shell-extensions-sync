@@ -1,7 +1,6 @@
 import { Context as request } from 'grest/src/app/Context/Context';
 
 import { Provider, SyncData, Status } from '../';
-import { setTimeout } from '../../utils';
 
 export class Github implements Provider {
   private static GIST_API_URL = 'https://api.github.com/gists';
@@ -14,8 +13,26 @@ export class Github implements Provider {
   }
 
   async upload(syncData: SyncData): Promise<Status> {
-    log(`uploading ${JSON.stringify(syncData, null, 2)}`);
-    return new Promise((resolve) => setTimeout(resolve, 3000));
+    const { status } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        Authorization: `token ${this.gistToken}`,
+      },
+      body: {
+        description: 'Extensions Sync',
+        files: {
+          syncSettings: {
+            content: JSON.stringify(syncData.syncSettings),
+          },
+          extensions: {
+            content: JSON.stringify(syncData.extensions),
+          },
+        },
+      },
+      method: 'PATCH',
+    });
+
+    return status === 200 ? Status.SUCCESS : Status.FAIL;
   }
 
   async download(): Promise<SyncData> {
