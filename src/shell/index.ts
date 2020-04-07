@@ -1,5 +1,5 @@
 import { parse } from 'fast-xml-parser';
-import { File, Settings } from '@imports/Gio-2.0';
+import { File, Settings, file_new_tmp, FileCreateFlags } from '@imports/Gio-2.0';
 import { execute } from '../utils';
 import { file_get_contents } from '@imports/GLib-2.0';
 import { byteArray } from '@imports/Gjs';
@@ -43,7 +43,6 @@ export interface ShellExtension {
   type: ExtensionType;
   uuid: string;
 }
-const getExtensionIds = (): Array<string> => imports.ui.main.extensionManager.getUuids();
 
 const readSchemaAsJson = (schemaPath: string): any => {
   const [, contents] = file_get_contents(schemaPath);
@@ -101,14 +100,22 @@ const getExtensionSchemas = (extensionId: string): any => {
 
 export const getCurrentExtension = (): ShellExtension => imports.misc.extensionUtils.getCurrentExtension();
 
+export const getExtensionIds = (): Array<string> =>
+  imports.ui.main.extensionManager
+    .getUuids()
+    .filter(
+      (uuid: string) =>
+        getExtensionById(uuid).type === ExtensionType.PER_USER && uuid !== getCurrentExtension().metadata.uuid,
+    );
+
 export const getCurrentExtensionSettings = (): Settings => imports.misc.extensionUtils.getSettings();
 
-export const getAllExtensions = (type: ExtensionType): Array<ShellExtension> => {
+export const getAllExtensions = (): Array<ShellExtension> => {
   const extensionIds = getExtensionIds();
   const extensions = extensionIds
     .map((id: string): any => {
       const extension = getExtensionById(id);
-      if (extension.type === type) {
+      if (extension.type === ExtensionType.PER_USER) {
         return extension;
       }
       return undefined;
@@ -119,7 +126,7 @@ export const getAllExtensions = (type: ExtensionType): Array<ShellExtension> => 
 };
 
 export const getAllExtensionSchemas = (): any => {
-  const extensions = getAllExtensions(ExtensionType.PER_USER);
+  const extensions = getAllExtensions();
 
   return extensions.reduce((extensionAcc, extension) => {
     return {
@@ -142,7 +149,7 @@ const getExtensionConfigData = (extensionId: string): any => {
 };
 
 export const getAllExtensionConfigData = (): any => {
-  const extensions = getAllExtensions(ExtensionType.PER_USER);
+  const extensions = getAllExtensions();
 
   return extensions.reduce((extensionAcc, extension) => {
     return {
@@ -150,6 +157,17 @@ export const getAllExtensionConfigData = (): any => {
       [extension.metadata.uuid]: getExtensionConfigData(extension.metadata.uuid),
     };
   }, {});
+};
+
+export const setExtensionConfigData = (schemaPath: string, data: string): void => {
+  if (!schemaPath || !data) {
+    return;
+  }
+  const [file] = file_new_tmp(null);
+  file.replace_contents(byteArray.fromString(data), null, false, FileCreateFlags.REPLACE_DESTINATION, null);
+
+  execute(`dconf load ${schemaPath} < ${file.get_path()}`);
+  file.delete(null);
 };
 
 export const notify = (text: string): void => imports.ui.main.notify(text);
