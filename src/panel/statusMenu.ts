@@ -42,7 +42,9 @@ export class StatusMenu {
     this.eventEmitter.on(ApiEvents.UPLOAD_FINISHED, this.enableButton.bind(this));
     this.eventEmitter.on(ApiEvents.DOWNLOAD_FINISHED, this.enableButton.bind(this));
 
-    panel.addToStatusArea('extensions-sync', this.button);
+    if (!panel.statusArea['extensions-sync']) {
+      panel.addToStatusArea('extensions-sync', this.button);
+    }
   }
 
   hide(): void {
