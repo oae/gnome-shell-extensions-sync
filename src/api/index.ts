@@ -49,7 +49,7 @@ export class Api {
     this.eventEmitter = eventEmitter;
     this.eventEmitter.on(ApiEvents.UPLOAD, this.upload.bind(this));
     this.eventEmitter.on(ApiEvents.DOWNLOAD, this.download.bind(this));
-    this.settings.connect('changed::provider', this.updateProvider.bind(this));
+    this.settings.connect('changed', this.updateProvider.bind(this));
   }
 
   async upload(): Promise<void> {

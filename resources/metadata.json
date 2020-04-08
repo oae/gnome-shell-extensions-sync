@@ -2,6 +2,7 @@
   "name": "extensions-sync-x",
   "description": "extensions-sync-x",
   "uuid": "extensions-sync-x@elhan.io",
+  "version": 5,
   "settings-schema": "org.gnome.shell.extensions.extensions-sync",
   "shell-version": ["3.36"]
 }
