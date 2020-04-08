@@ -104,16 +104,15 @@ export class Api {
 
   private createGithubProvider(): Provider {
     const gistId = this.settings.get_string('github-gist-id');
-    const gistToken = this.settings.get_string('github-gist-token');
+    const userToken = this.settings.get_string('github-user-token');
 
-    return new Github(gistId, gistToken);
+    return new Github(gistId, userToken);
   }
 
   private createGitlabProvider(): Provider {
     const snippetId = this.settings.get_string('gitlab-snippet-id');
-    const snippetToken = this.settings.get_string('gitlab-snippet-token');
-    const apiUrl = this.settings.get_string('gitlab-api-url') || undefined;
+    const userToken = this.settings.get_string('gitlab-user-token');
 
-    return new Gitlab(snippetId, snippetToken, apiUrl);
+    return new Gitlab(snippetId, userToken);
   }
 }

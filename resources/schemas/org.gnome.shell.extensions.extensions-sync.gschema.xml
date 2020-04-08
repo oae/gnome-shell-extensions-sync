@@ -11,7 +11,7 @@
       <summary>Gist Id</summary>
       <description>You can create a gist from https://gist.github.com/ and use it's id</description>
     </key>
-    <key type="s" name="github-gist-token">
+    <key type="s" name="github-user-token">
       <default>""</default>
       <summary>Github token</summary>
       <description>Generate a new token from https://github.com/settings/tokens/new with gist permission and use it</description>
@@ -21,15 +21,10 @@
       <summary>Snippet Id</summary>
       <description>Snippet Id</description>
     </key>
-    <key type="s" name="gitlab-snippet-token">
+    <key type="s" name="gitlab-user-token">
       <default>""</default>
-      <summary>Snippet token</summary>
-      <description>Snippet token</description>
-    </key>
-    <key type="s" name="gitlab-api-url">
-      <default>""</default>
-      <summary>Gitlab Api Url</summary>
-      <description>Gitlab Api Url</description>
+      <summary>Gitlab token</summary>
+      <description>Gitlab token</description>
     </key>
     <key name="provider" enum="org.gnome.shell.extensions.extensions-sync.provider">
       <default>'Github'</default>

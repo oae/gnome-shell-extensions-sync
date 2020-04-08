@@ -26,8 +26,6 @@ export class Sync {
       return;
     }
 
-    notify(_('Settings are being updated.'));
-
     const downloadedExtensions = Object.keys(syncData.extensions);
 
     downloadedExtensions.forEach((extensionId) => {
@@ -35,5 +33,7 @@ export class Sync {
         setExtensionConfigData(schemaPath, syncData.extensions[extensionId][schemaPath]);
       });
     });
+
+    notify(_('Settings are updated.'));
   }
 }

@@ -4,19 +4,20 @@ import { Provider, SyncData, Status } from '../';
 
 export class Github implements Provider {
   private static GIST_API_URL = 'https://api.github.com/gists';
-  private gistId: string;
-  private gistToken: string;
 
-  constructor(gistId: string, gistToken: string) {
+  private gistId: string;
+  private userToken: string;
+
+  constructor(gistId: string, userToken: string) {
     this.gistId = gistId;
-    this.gistToken = gistToken;
+    this.userToken = userToken;
   }
 
   async upload(syncData: SyncData): Promise<Status> {
     const { status } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
-        Authorization: `token ${this.gistToken}`,
+        Authorization: `token ${this.userToken}`,
       },
       body: {
         description: 'Extensions Sync',
@@ -36,7 +37,7 @@ export class Github implements Provider {
     const { body } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
-        Authorization: `token ${this.gistToken}`,
+        Authorization: `token ${this.userToken}`,
       },
       method: 'GET',
     });

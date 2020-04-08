@@ -1,40 +1,46 @@
 import { Context as request } from 'grest/src/app/Context/Context';
 
 import { Provider, SyncData, Status } from '../';
-import { setTimeout } from '../../utils';
 
 export class Gitlab implements Provider {
-  private snippetId: string;
-  private snippetToken: string;
-  private apiUrl: string;
+  private static SNIPPETS_API_URL = 'https://gitlab.com/api/v4/snippets';
 
-  constructor(snippetId: string, snippetToken: string, apiUrl?: string) {
+  private snippetId: string;
+  private userToken: string;
+
+  constructor(snippetId: string, userToken: string) {
     this.snippetId = snippetId;
-    this.snippetToken = snippetToken;
-    this.apiUrl = 'https://gitlab.com/api/v4/snippets';
-    if (apiUrl !== undefined) {
-      this.apiUrl = apiUrl;
-    }
+    this.userToken = userToken;
   }
 
   async upload(syncData: SyncData): Promise<Status> {
-    log(`uploading ${JSON.stringify(syncData, null, 2)}`);
-    return new Promise((resolve) => setTimeout(resolve, 3000));
+    const { status } = await request.fetch(`${Gitlab.SNIPPETS_API_URL}/${this.snippetId}`, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0',
+        'PRIVATE-TOKEN': `${this.userToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: {
+        title: 'Extensions Sync',
+        content: JSON.stringify(syncData.extensions),
+      },
+      method: 'PUT',
+    });
+
+    return status === 200 ? Status.SUCCESS : Status.FAIL;
   }
 
   async download(): Promise<SyncData> {
-    const { body } = await request.fetch(`${this.apiUrl}/${this.snippetId}/raw`, {
+    const { body } = await request.fetch(`${Gitlab.SNIPPETS_API_URL}/${this.snippetId}/raw`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
-        'PRIVATE-TOKEN': `${this.snippetToken}`,
+        'PRIVATE-TOKEN': `${this.userToken}`,
       },
       method: 'GET',
     });
 
-    log(JSON.stringify(body));
-
     return {
-      extensions: JSON.parse(JSON.stringify(body)),
+      extensions: body,
     };
   }
 
