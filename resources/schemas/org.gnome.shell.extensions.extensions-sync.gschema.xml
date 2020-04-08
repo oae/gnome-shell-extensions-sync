@@ -31,16 +31,6 @@
       <summary>Gitlab Api Url</summary>
       <description>Gitlab Api Url</description>
     </key>
-    <key type="b" name="auto-sync">
-      <default>false</default>
-      <summary>Auto Sync</summary>
-      <description>Auto Sync</description>
-    </key>
-    <key type="s" name="last-updated-at">
-      <default>""</default>
-      <summary>Last update time</summary>
-      <description>Last update time</description>
-    </key>
     <key name="provider" enum="org.gnome.shell.extensions.extensions-sync.provider">
       <default>'Github'</default>
       <summary>Provider for synchronization.</summary>

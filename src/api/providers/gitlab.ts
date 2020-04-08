@@ -34,7 +34,6 @@ export class Gitlab implements Provider {
     log(JSON.stringify(body));
 
     return {
-      syncSettings: JSON.parse(JSON.stringify(body)),
       extensions: JSON.parse(JSON.stringify(body)),
     };
   }

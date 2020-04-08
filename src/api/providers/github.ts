@@ -21,9 +21,6 @@ export class Github implements Provider {
       body: {
         description: 'Extensions Sync',
         files: {
-          syncSettings: {
-            content: JSON.stringify(syncData.syncSettings),
-          },
           extensions: {
             content: JSON.stringify(syncData.extensions),
           },
@@ -45,7 +42,6 @@ export class Github implements Provider {
     });
 
     return {
-      syncSettings: JSON.parse(body.files.syncSettings.content),
       extensions: JSON.parse(body.files.extensions.content),
     };
   }

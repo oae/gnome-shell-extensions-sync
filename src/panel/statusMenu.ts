@@ -18,20 +18,9 @@ export class StatusMenu {
     this.eventEmitter = eventEmitter;
     this.extension = getCurrentExtension();
     this.settings = getCurrentExtensionSettings();
-    this.settings.connect('changed::auto-sync', () => {
-      if (this.settings.get_boolean('auto-sync') === true) {
-        this.hide();
-      } else {
-        this.show();
-      }
-    });
   }
 
   show(): void {
-    if (this.settings.get_boolean('auto-sync') === true) {
-      return;
-    }
-
     if (this.button === undefined) {
       this.button = this.createButton();
     }
@@ -52,12 +41,6 @@ export class StatusMenu {
       this.button.destroy();
       this.button = undefined;
     }
-
-    this.eventEmitter.off(ApiEvents.UPLOAD, this.disableButton.bind(this));
-    this.eventEmitter.off(ApiEvents.DOWNLOAD, this.disableButton.bind(this));
-
-    this.eventEmitter.off(ApiEvents.UPLOAD_FINISHED, this.enableButton.bind(this));
-    this.eventEmitter.off(ApiEvents.DOWNLOAD_FINISHED, this.enableButton.bind(this));
   }
 
   private createButton(): any {

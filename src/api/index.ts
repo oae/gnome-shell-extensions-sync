@@ -20,10 +20,6 @@ export enum ApiEvents {
 }
 
 export type SyncData = {
-  syncSettings: {
-    lastUpdatedAt: Date;
-    autoSync: boolean;
-  };
   extensions: {
     [key: string]: {
       [key: string]: string;
@@ -59,10 +55,6 @@ export class Api {
   async upload(): Promise<void> {
     try {
       const status: Status = await this.provider.upload({
-        syncSettings: {
-          lastUpdatedAt: new Date(),
-          autoSync: this.settings.get_boolean('auto-sync'),
-        },
         extensions: getAllExtensionConfigData(),
       });
       if (status === Status.FAIL) {
@@ -81,7 +73,6 @@ export class Api {
     try {
       const result: SyncData = await this.provider.download();
       this.eventEmitter.emit(ApiEvents.DOWNLOAD_FINISHED, result);
-      notify(_(`Settings successfully downloaded from ${this.getName()}`));
     } catch (ex) {
       this.eventEmitter.emit(ApiEvents.DOWNLOAD_FINISHED, undefined, ex);
       notify(_(`Error occured while downloading settings from ${this.getName()}. Please check the logs.`));
