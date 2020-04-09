@@ -55,7 +55,7 @@ export class Api {
   async upload(): Promise<void> {
     try {
       const status: Status = await this.provider.upload({
-        extensions: getAllExtensionConfigData(),
+        extensions: await getAllExtensionConfigData(),
       });
       if (status === Status.FAIL) {
         throw new Error('Could not upload');

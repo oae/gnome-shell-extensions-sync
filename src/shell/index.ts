@@ -52,15 +52,15 @@ const readSchemaAsJson = (schemaPath: string): any => {
 
 const getExtensionById = (extensionId: string): ShellExtension => imports.ui.main.extensionManager.lookup(extensionId);
 
-const getExtensionSchemas = (extensionId: string): any => {
+const getExtensionSchemas = async (extensionId: string): Promise<any> => {
   const extension = getExtensionById(extensionId);
 
-  const { stdout } = execute(`find -L ${extension.path} -iname "*.xml" -exec grep -l "schemalist" {} +`);
+  const stdout = await execute(`find -L ${extension.path} -iname "*.xml" -exec grep -l "schemalist" {} +`);
   if (!stdout) {
     return {};
   }
 
-  const schemaFiles = stdout.trim().split('\n');
+  const schemaFiles = stdout.split('\n');
 
   const foundSchemas = schemaFiles
     .map((schemaFile) => readSchemaAsJson(schemaFile))
@@ -125,48 +125,47 @@ export const getAllExtensions = (): Array<ShellExtension> => {
   return extensions;
 };
 
-export const getAllExtensionSchemas = (): any => {
+export const getAllExtensionSchemas = async (): Promise<any> => {
   const extensions = getAllExtensions();
 
-  return extensions.reduce((extensionAcc, extension) => {
+  return extensions.reduce(async (extensionAcc, extension) => {
     return {
-      ...extensionAcc,
-      [extension.metadata.uuid]: getExtensionSchemas(extension.metadata.uuid),
+      ...(await extensionAcc),
+      [extension.metadata.uuid]: await getExtensionSchemas(extension.metadata.uuid),
     };
-  }, {});
+  }, Promise.resolve({}));
 };
 
-const getExtensionConfigData = (extensionId: string): any => {
-  const schemas = getExtensionSchemas(extensionId);
+const getExtensionConfigData = async (extensionId: string): Promise<any> => {
+  const schemas = await getExtensionSchemas(extensionId);
 
-  return Object.keys(schemas).reduce((acc, schema) => {
-    const { stdout } = execute(`dconf dump ${schema}`);
+  return Object.keys(schemas).reduce(async (acc, schema) => {
     return {
-      ...acc,
-      [schema]: stdout,
+      ...(await acc),
+      [schema]: await execute(`dconf dump ${schema}`),
     };
-  }, {});
+  }, Promise.resolve({}));
 };
 
-export const getAllExtensionConfigData = (): any => {
+export const getAllExtensionConfigData = async (): Promise<any> => {
   const extensions = getAllExtensions();
 
-  return extensions.reduce((extensionAcc, extension) => {
+  return extensions.reduce(async (extensionAcc, extension) => {
     return {
-      ...extensionAcc,
-      [extension.metadata.uuid]: getExtensionConfigData(extension.metadata.uuid),
+      ...(await extensionAcc),
+      [extension.metadata.uuid]: await getExtensionConfigData(extension.metadata.uuid),
     };
-  }, {});
+  }, Promise.resolve({}));
 };
 
-export const setExtensionConfigData = (schemaPath: string, data: string): void => {
+export const setExtensionConfigData = async (schemaPath: string, data: string): Promise<void> => {
   if (!schemaPath || !data) {
     return;
   }
   const [file] = file_new_tmp(null);
   file.replace_contents(byteArray.fromString(data), null, false, FileCreateFlags.REPLACE_DESTINATION, null);
 
-  execute(`dconf load ${schemaPath} < ${file.get_path()}`);
+  await execute(`dconf load ${schemaPath} < ${file.get_path()}`);
   file.delete(null);
 };
 
