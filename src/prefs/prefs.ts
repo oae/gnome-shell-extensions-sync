@@ -45,6 +45,7 @@ class Preferences {
     if (null !== settingsBox) {
       this.widget.pack_start(settingsBox, true, true, 0);
     }
+    this.widget.get_parent_window()?.set_title(this.extension.metadata.name);
 
     this.initValues();
     this.onProviderChange();

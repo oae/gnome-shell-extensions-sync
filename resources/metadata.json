@@ -1,8 +1,9 @@
 {
-  "name": "extensions-sync-x",
-  "description": "extensions-sync-x",
-  "uuid": "extensions-sync-x@elhan.io",
+  "name": "Extensions Sync",
+  "description": "Sync all extensions and their configurations across all gnome instances",
+  "uuid": "extensions-sync@elhan.io",
   "version": 5,
   "settings-schema": "org.gnome.shell.extensions.extensions-sync",
+  "url": "https://github.com/oae/gnome-shell-extensions-sync",
   "shell-version": ["3.36"]
 }
