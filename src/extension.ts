@@ -25,6 +25,7 @@ export class SyncExtension {
   disable(): void {
     this.sync.stop();
     this.statusMenu.hide();
+    this.eventEmitter.removeAllListeners();
   }
 }
 
