@@ -47,6 +47,7 @@ class Preferences {
     }
 
     this.initValues();
+    this.onProviderChange();
   }
 
   private initValues(): void {
