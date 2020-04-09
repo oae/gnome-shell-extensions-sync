@@ -1,73 +1,57 @@
 # Extensions Sync
 
-Syncs gnome shell extensions and their configurations across all gnome installations with the help of gist
+Syncs gnome shell extensions and their configurations across all gnome installations
 
-![SS](https://i.imgur.com/2vJ89Zo.jpg)
+![SS](https://i.imgur.com/XfXOQCB.png)
 
 ## Installation
 
 ### From [Git](https://github.com/oae/gnome-shell-extensions-sync)
 
 ```bash
-curl https://raw.githubusercontent.com/oae/gnome-shell-extensions-sync/master/installer.sh | bash
+git clone https://github.com/oae/gnome-shell-extensions-sync.git
+cd ./gnome-shell-extensions-sync
+yarn build
+ln -s "$PWD/dist" "$HOME/.local/share/gnome-shell/extensions/extensions-sync@elhan.io"
 ```
 
 ### From [Ego](extensions.gnome.org)
 
-* You can install it from link below
-https://extensions.gnome.org/extension/1486/extensions-sync/
+- You can install it from link below
+  https://extensions.gnome.org/extension/1486/extensions-sync/
 
 ## Usage
 
+## For Github
+
 1. Create a new gist from [here](https://gist.github.com/) I suggest you make it secret.
 2. Create a new token from [here](https://github.com/settings/tokens/new). Only gist permission is needed since we edit the gists.
-3. Open extension settings and fill gist id from first step and gist token from second step.
-4. Enjoy!
+3. Open extension settings, select the `Github` provider and fill gist id from first step and user token from second step.
 
-## Debugging
+## For Gitlab
 
-* If you encounter a problem you can enable the debug logs with;
+1. Create a new snippet from [here](https://gitlab.com/snippets/new) I suggest you make it private.
+2. Create a new token from [here](https://gitlab.com/profile/personal_access_tokens). Only api scope is needed.
+3. Open extension settings, select the `Gitlab` provider and fill snippet id from first step and user token from second step.
 
-  ```sh
-  busctl --user call org.gnome.Shell /org/gnome/Shell org.gnome.Shell Eval s 'window.extensionsSync.debug = true;'
-  ```
+## Development
 
-* Then trace them with;
+- This extension is written in Typescript and uses webpack to compile it into javascript.
+- Most dependencies have auto completion support thanks to [this amazing project](https://github.com/sammydre/ts-for-gjs) by [@sammydre](https://github.com/sammydre)
+- To start development, you need nodejs installed on your system;
 
-  ```sh
-  journalctl /usr/bin/gnome-shell -f -o cat | grep "\[extensions-sync\]"
-  ```
+  - Clone the project
 
-## Notes
+    ```sh
+    git clone https://github.com/oae/gnome-shell-extensions-sync.git
+    cd ./gnome-shell-extensions-sync
+    ```
 
-* Downloading from gist will do 3 things.
-  * It will remove all extensions that are not exist in the gist.
-  * It will install extensions that are listed in gist and update their settings.
-  * It will update all the settings of installed the extensions.
-  
-* Uploading to gist will dump all the settings of the installed extensions(enabled/disabled) and put them in the gist with the below structure
+  - Install dependencies and build it
 
-  ```json
-  {
-    "description": "Extensions sync",
-    "files": {
-      "syncSettings": {
-        "content": {
-          "lastUpdatedAt": "time",
-        }
-      },
-      "extensions": {
-        "content": {
-          "extension1": {
-            "schema1": "schema1 settings",
-            "schema2": "schema2 settings",
-          },
-          "extension2": {
-            "schema1": "schema1 settings",
-            "schema2": "schema2 settings",
-          },
-        }
-      }
-    }
-  }
-  ```
+    ```sh
+    yarn install
+    yarn build
+    ```
+
+  - During development you can use `yarn watch` command to keep generated code up-to-date.

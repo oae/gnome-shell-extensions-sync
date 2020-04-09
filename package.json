@@ -1,0 +1,61 @@
+{
+  "name": "extensions-sync",
+  "version": "1.0.0",
+  "author": "Alperen Elhan <alperen@elhan.io>",
+  "license": "MIT",
+  "scripts": {
+    "build": "yarn run build:types && yarn run build:ts && yarn run build:extension",
+    "clean": "yarn run clean:ts && yarn run build:types",
+    "build:types": "yarn run clean:types && ts-for-gir generate",
+    "clean:types": "rm -rf ./@types",
+    "build:ts": "yarn run clean:ts && webpack",
+    "clean:ts": "rm -rf ./dist",
+    "build:extension": "yarn run build:schema",
+    "build:schema": "yarn run clean:schema && glib-compile-schemas ./resources/schemas --targetdir=./dist/schemas/",
+    "clean:schema": "rm -rf ./dist/schemas/*.compiled",
+    "build:package": "rm -rf './dist/extensions-sync@elhan.io.zip' && cd ./dist && zip -qr 'extensions-sync@elhan.io.zip' .",
+    "watch": "yarn run build && yarn run webpack --watch",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "lint": "eslint --ext .ts src/"
+  },
+  "commitlint": {
+    "extends": [
+      "@commitlint/config-conventional"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "yarn run lint",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^8.3.5",
+    "@commitlint/config-conventional": "^8.3.4",
+    "@types/events": "^3.0.0",
+    "@typescript-eslint/eslint-plugin": "^2.25.0",
+    "@typescript-eslint/parser": "^2.25.0",
+    "copy-webpack-plugin": "^5.1.1",
+    "css-loader": "^3.4.2",
+    "eslint": "^6.8.0",
+    "eslint-config-prettier": "^6.10.1",
+    "eslint-plugin-prettier": "^3.1.2",
+    "file-loader": "^6.0.0",
+    "husky": "^4.2.3",
+    "mini-css-extract-plugin": "^0.9.0",
+    "node-sass": "^4.13.1",
+    "prettier": "^2.0.2",
+    "sass-loader": "^8.0.2",
+    "style-loader": "^1.1.3",
+    "ts-for-gir": "https://github.com/oae/ts-for-gjs",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
+  },
+  "dependencies": {
+    "events": "^3.1.0",
+    "fast-xml-parser": "^3.16.0",
+    "grest": "^1.2.0"
+  }
+}

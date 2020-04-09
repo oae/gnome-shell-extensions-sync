@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {   
+    "lib": ["es2015"],              
+    "target": "es2015",
+    "module": "commonjs",
+    "strict": true,
+    "noImplicitAny": false,
+    "strictNullChecks": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "rootDir": "src",
+    "baseUrl": "./src",
+    "paths": {
+      "@imports/*": ["../@types/Gjs/*"]
+    }
+  },
+  // "include": ["src", "@types"],
+  "exclude": [
+    "node_modules",
+    "**/*.spec.ts",
+    "templates"
+  ]
+}
