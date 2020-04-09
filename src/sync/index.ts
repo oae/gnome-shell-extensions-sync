@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { SyncData, ApiEvents } from '../api';
-import { setExtensionConfigData, notify } from '../shell';
+import { setExtensionConfigData, getExtensionIds, removeExtension, installExtension, restartShell } from '../shell';
 
 export enum SyncEvents {
   SYNCHRONIZED,
@@ -21,19 +21,31 @@ export class Sync {
     this.eventEmitter.off(ApiEvents.DOWNLOAD_FINISHED, this.onDownloadFinished.bind(this));
   }
 
-  private onDownloadFinished(syncData?: SyncData): void {
+  private async onDownloadFinished(syncData?: SyncData): Promise<void> {
     if (syncData === undefined) {
       return;
     }
 
     const downloadedExtensions = Object.keys(syncData.extensions);
+    const localExtensions = getExtensionIds();
+    localExtensions.forEach(
+      (extensionId) => downloadedExtensions.indexOf(extensionId) < 0 && removeExtension(extensionId),
+    );
 
-    downloadedExtensions.forEach((extensionId) => {
-      Object.keys(syncData.extensions[extensionId]).forEach((schemaPath) => {
-        setExtensionConfigData(schemaPath, syncData.extensions[extensionId][schemaPath]);
-      });
-    });
+    await Promise.all(
+      downloadedExtensions.map((extensionId) => {
+        return Object.keys(syncData.extensions[extensionId]).map((schemaPath) => {
+          return setExtensionConfigData(schemaPath, syncData.extensions[extensionId][schemaPath]);
+        });
+      }),
+    );
 
-    notify(_('Settings are updated.'));
+    await Promise.all(
+      downloadedExtensions.map(
+        async (extensionId) => localExtensions.indexOf(extensionId) < 0 && installExtension(extensionId),
+      ),
+    );
+
+    restartShell(_('Extensions are updated. Reloading Gnome Shell'));
   }
 }
