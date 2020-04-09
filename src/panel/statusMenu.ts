@@ -3,6 +3,7 @@ import { Icon } from '@imports/St-1.0';
 import { icon_new_for_string, Settings } from '@imports/Gio-2.0';
 import { getCurrentExtension, ShellExtension, getCurrentExtensionSettings } from '../shell';
 import { ApiEvents } from '../api';
+import { execute } from '../utils';
 
 const { Button } = imports.ui.panelMenu;
 const { PopupImageMenuItem, PopupSeparatorMenuItem } = imports.ui.popupMenu;
@@ -56,7 +57,11 @@ export class StatusMenu {
       this.createMenuItem(_('Download'), 'download', () => this.eventEmitter.emit(ApiEvents.DOWNLOAD)),
     );
     newButton.menu.addMenuItem(new PopupSeparatorMenuItem());
-    newButton.menu.addMenuItem(this.createMenuItem(_('Preferences'), 'preferences'));
+    newButton.menu.addMenuItem(
+      this.createMenuItem(_('Preferences'), 'preferences', () => {
+        execute(`gnome-extensions prefs "${this.extension.metadata.uuid}"`);
+      }),
+    );
 
     return newButton;
   }
