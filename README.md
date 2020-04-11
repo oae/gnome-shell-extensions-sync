@@ -1,5 +1,12 @@
 # Extensions Sync
 
+![TypeScript](https://badgen.net/badge/icon/typescript?icon=typescript&label)
+![David](https://img.shields.io/david/oae/gnome-shell-extensions-sync)
+![Open Source Love](https://badges.frapsoft.com/os/v1/open-source.png?v=103)
+![GPL Licence](https://badges.frapsoft.com/os/gpl/gpl.png?v=103)
+![GitHub release (latest by date)](https://img.shields.io/github/v/release/oae/gnome-shell-extensions-sync)
+![GitHub commits since tagged version](https://img.shields.io/github/commits-since/oae/gnome-shell-extensions-sync/latest/master)
+
 Syncs gnome shell extensions and their configurations across all gnome installations
 
 ![SS](https://i.imgur.com/XfXOQCB.png)
