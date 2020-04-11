@@ -272,6 +272,10 @@ export const installExtension = async (extensionId: string): Promise<void> => {
   });
 };
 
+export const canRestartShell = (): boolean => {
+  return !imports.gi.Meta.is_wayland_compositor();
+};
+
 export const restartShell = (text: string): void => {
   if (!imports.gi.Meta.is_wayland_compositor()) {
     imports.gi.Meta.restart(text);

@@ -1,6 +1,14 @@
 import { EventEmitter } from 'events';
 import { SyncData, ApiEvents } from '../api';
-import { setExtensionConfigData, getExtensionIds, removeExtension, installExtension, restartShell } from '../shell';
+import {
+  setExtensionConfigData,
+  getExtensionIds,
+  removeExtension,
+  installExtension,
+  restartShell,
+  canRestartShell,
+  notify,
+} from '../shell';
 
 export enum SyncEvents {
   SYNCHRONIZED,
@@ -46,6 +54,10 @@ export class Sync {
       ),
     );
 
-    restartShell(_('Extensions are updated. Reloading Gnome Shell'));
+    if (canRestartShell()) {
+      restartShell(_('Extensions are updated. Reloading Gnome Shell'));
+    } else {
+      notify(_('Extensions are updated. Please reload Gnome Shell'));
+    }
   }
 }
