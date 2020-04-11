@@ -97,6 +97,8 @@ const getExtensionSchemas = async (extensionId: string): Promise<any> => {
               [schemaObj['@_path']]: {},
             };
           }
+
+          return acc;
         }, {});
 
         return {
