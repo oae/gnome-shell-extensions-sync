@@ -11,6 +11,7 @@ Syncs gnome shell extensions and their configurations across all gnome installat
 ```bash
 git clone https://github.com/oae/gnome-shell-extensions-sync.git
 cd ./gnome-shell-extensions-sync
+yarn install
 yarn build
 ln -s "$PWD/dist" "$HOME/.local/share/gnome-shell/extensions/extensions-sync@elhan.io"
 ```
