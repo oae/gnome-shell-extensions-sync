@@ -1,6 +1,6 @@
 import { parse } from 'fast-xml-parser';
 import { File, Settings, file_new_tmp, FileCreateFlags } from '@imports/Gio-2.0';
-import { execute } from '../utils';
+import { execute, logger } from '../utils';
 import {
   file_get_contents,
   spawn_async,
@@ -60,6 +60,8 @@ export interface ShellExtension {
   uuid: string;
 }
 
+const debug = logger('shell');
+
 const readSchemaAsJson = (schemaPath: string): any => {
   const [, contents] = file_get_contents(schemaPath);
 
@@ -72,13 +74,20 @@ const getExtensionById = (extensionId: string): ShellExtension => getExtensionMa
 
 const getExtensionSchemas = async (extensionId: string): Promise<any> => {
   const extension = getExtensionById(extensionId);
+  let stdout: string;
 
-  const stdout = await execute(`find -L ${extension.path} -iname "*.xml" -exec grep -l "schemalist" {} +`);
+  try {
+    stdout = await execute(`find -L ${extension.path} -iname "*.xml" -exec grep -l "schemalist" {} +`);
+  } catch (ex) {
+    debug(`error occured while getting extension schemas: ${ex}`);
+    return {};
+  }
+
   if (!stdout) {
     return {};
   }
 
-  const schemaFiles = stdout.split('\n');
+  const schemaFiles: Array<string> = stdout.split('\n');
 
   const foundSchemas = schemaFiles
     .map((schemaFile) => readSchemaAsJson(schemaFile))
@@ -160,10 +169,16 @@ const getExtensionConfigData = async (extensionId: string): Promise<any> => {
   const schemas = await getExtensionSchemas(extensionId);
 
   return Object.keys(schemas).reduce(async (acc, schema) => {
-    return {
-      ...(await acc),
-      [schema]: await execute(`dconf dump ${schema}`),
-    };
+    try {
+      return {
+        ...(await acc),
+        [schema]: await execute(`dconf dump ${schema}`),
+      };
+    } catch (ex) {
+      debug(`cannot dump settings for ${extensionId}:${schema}`);
+    }
+
+    return acc;
   }, Promise.resolve({}));
 };
 
@@ -182,15 +197,21 @@ export const setExtensionConfigData = async (schemaPath: string, data: string): 
   if (!schemaPath || !data) {
     return;
   }
-  const [file] = file_new_tmp(null);
+  const [file, ioStream] = file_new_tmp(null);
   file.replace_contents(byteArray.fromString(data), null, false, FileCreateFlags.REPLACE_DESTINATION, null);
-
-  await execute(`dconf load ${schemaPath} < ${file.get_path()}`);
+  try {
+    await execute(`dconf load ${schemaPath} < ${file.get_path()}`);
+    debug(`loaded settings for ${schemaPath}`);
+  } catch (ex) {
+    debug(`cannot load settings for ${schemaPath}`);
+  }
   file.delete(null);
+  ioStream.close_async(PRIORITY_DEFAULT, null, null);
 };
 
 export const removeExtension = (extensionId: string): void => {
   imports.ui.extensionDownloader.uninstallExtension(extensionId);
+  debug(`removed extension ${extensionId}`);
 };
 
 const gotExtensionZipFile = (session, message, uuid, dir, callback, errback): any => {
@@ -250,6 +271,7 @@ export const installExtension = async (extensionId: string): Promise<void> => {
           dir,
           imports.misc.extensionUtils.ExtensionType.PER_USER,
         );
+        debug(`installed new extension ${extensionId}`);
         getExtensionManager().loadExtension(extension);
         if (!getExtensionManager().enableExtension(extensionId))
           throw new Error(`Cannot add ${extensionId} to enabled extensions gsettings key`);

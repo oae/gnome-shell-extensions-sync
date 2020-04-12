@@ -9,10 +9,13 @@ import {
   canRestartShell,
   notify,
 } from '../shell';
+import { logger } from '../utils';
 
 export enum SyncEvents {
   SYNCHRONIZED,
 }
+
+const debug = logger('sync');
 
 export class Sync {
   private eventEmitter: EventEmitter;
@@ -23,10 +26,12 @@ export class Sync {
 
   start(): void {
     this.eventEmitter.on(ApiEvents.DOWNLOAD_FINISHED, this.onDownloadFinished.bind(this));
+    debug('listening for download completion events');
   }
 
   stop(): void {
     this.eventEmitter.off(ApiEvents.DOWNLOAD_FINISHED, this.onDownloadFinished.bind(this));
+    debug('stopped listening for download completion events');
   }
 
   private async onDownloadFinished(syncData?: SyncData): Promise<void> {

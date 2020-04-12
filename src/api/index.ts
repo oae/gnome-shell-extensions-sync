@@ -53,6 +53,7 @@ export class Api {
   }
 
   async upload(): Promise<void> {
+    debug('got upload request, uploading settings...');
     try {
       const status: Status = await this.provider.upload({
         extensions: await getAllExtensionConfigData(),
@@ -70,6 +71,7 @@ export class Api {
   }
 
   async download(): Promise<void> {
+    debug('got download request, downloading settings...');
     try {
       const result: SyncData = await this.provider.download();
       this.eventEmitter.emit(ApiEvents.DOWNLOAD_FINISHED, result);
