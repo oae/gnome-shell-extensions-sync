@@ -3,11 +3,13 @@ import { Icon } from '@imports/St-1.0';
 import { icon_new_for_string, Settings } from '@imports/Gio-2.0';
 import { getCurrentExtension, ShellExtension, getCurrentExtensionSettings } from '../shell';
 import { ApiEvents } from '../api';
-import { execute } from '../utils';
+import { execute, logger } from '../utils';
 
 const { Button } = imports.ui.panelMenu;
 const { PopupImageMenuItem, PopupSeparatorMenuItem } = imports.ui.popupMenu;
 const { panel } = imports.ui.main;
+
+const debug = logger('statusMenu');
 
 export class StatusMenu {
   private eventEmitter: EventEmitter;
@@ -32,15 +34,23 @@ export class StatusMenu {
     this.eventEmitter.on(ApiEvents.UPLOAD_FINISHED, this.enableButton.bind(this));
     this.eventEmitter.on(ApiEvents.DOWNLOAD_FINISHED, this.enableButton.bind(this));
 
-    if (!panel.statusArea['extensions-sync']) {
-      panel.addToStatusArea('extensions-sync', this.button);
-    }
+    panel.addToStatusArea('extensions-sync', this.button);
+    debug('showing status menu in panel');
   }
 
   hide(): void {
     if (this.button) {
       this.button.destroy();
       this.button = undefined;
+    }
+    if (panel.statusArea['extensions-sync']) {
+      panel.statusArea['extensions-sync'].destroy();
+      this.eventEmitter.off(ApiEvents.UPLOAD, this.disableButton.bind(this));
+      this.eventEmitter.off(ApiEvents.DOWNLOAD, this.disableButton.bind(this));
+
+      this.eventEmitter.off(ApiEvents.UPLOAD_FINISHED, this.enableButton.bind(this));
+      this.eventEmitter.off(ApiEvents.DOWNLOAD_FINISHED, this.enableButton.bind(this));
+      debug('removing status menu from panel');
     }
   }
 
