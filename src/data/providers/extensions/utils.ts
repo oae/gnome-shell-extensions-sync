@@ -1,6 +1,6 @@
 import { parse } from 'fast-xml-parser';
 
-import { File, file_new_tmp, FileCreateFlags } from '@imports/Gio-2.0';
+import { File } from '@imports/Gio-2.0';
 import {
   file_get_contents,
   spawn_async,
@@ -21,9 +21,9 @@ import {
 } from '@imports/Soup-2.4';
 
 import { execute, logger } from '../../../utils';
-import { ShellExtension, ExtensionType, getCurrentExtension } from '../../../shell';
+import { ShellExtension, ExtensionType, getCurrentExtension, readDconfData } from '../../../shell';
 
-const debug = logger('shell');
+const debug = logger('extension-utils');
 
 const readSchemaAsJson = (schemaPath: string): any => {
   const [, contents] = file_get_contents(schemaPath);
@@ -120,7 +120,7 @@ const getExtensionConfigData = async (extensionId: string): Promise<any> => {
     try {
       return {
         ...(await acc),
-        [schema]: await execute(`dconf dump ${schema}`),
+        [schema]: await readDconfData(schema),
       };
     } catch (ex) {
       debug(`cannot dump settings for ${extensionId}:${schema}`);
@@ -139,22 +139,6 @@ export const getAllExtensionConfigData = async (): Promise<any> => {
       [extension.metadata.uuid]: await getExtensionConfigData(extension.metadata.uuid),
     };
   }, Promise.resolve({}));
-};
-
-export const setExtensionConfigData = async (schemaPath: string, data: string): Promise<void> => {
-  if (!schemaPath || !data) {
-    return;
-  }
-  const [file, ioStream] = file_new_tmp(null);
-  file.replace_contents(byteArray.fromString(data), null, false, FileCreateFlags.REPLACE_DESTINATION, null);
-  try {
-    await execute(`dconf load ${schemaPath} < ${file.get_path()}`);
-    debug(`loaded settings for ${schemaPath}`);
-  } catch (ex) {
-    debug(`cannot load settings for ${schemaPath}`);
-  }
-  file.delete(null);
-  ioStream.close_async(PRIORITY_DEFAULT, null, null);
 };
 
 export const removeExtension = (extensionId: string): void => {

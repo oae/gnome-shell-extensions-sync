@@ -1,11 +1,6 @@
 import { DataProvider } from '../../../data';
-import {
-  getAllExtensionConfigData,
-  getExtensionIds,
-  removeExtension,
-  setExtensionConfigData,
-  installExtension,
-} from './utils';
+import { getAllExtensionConfigData, getExtensionIds, removeExtension, installExtension } from './utils';
+import { writeDconfData } from '../../../shell';
 
 export type ExtensionData = {
   [key: string]: {
@@ -28,7 +23,7 @@ export class ExtensionsDataProvider implements DataProvider {
     await Promise.all(
       downloadedExtensions.map((extensionId) => {
         return Object.keys(extensionData[extensionId]).map((schemaPath) => {
-          return setExtensionConfigData(schemaPath, extensionData[extensionId][schemaPath]);
+          return writeDconfData(schemaPath, extensionData[extensionId][schemaPath]);
         });
       }),
     );

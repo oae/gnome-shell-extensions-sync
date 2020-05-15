@@ -1,4 +1,10 @@
-import { File, Settings } from '@imports/Gio-2.0';
+import { File, Settings, file_new_tmp, FileCreateFlags } from '@imports/Gio-2.0';
+import { byteArray } from '@imports/Gjs';
+import { PRIORITY_DEFAULT } from '@imports/GLib-2.0';
+
+import { execute, logger } from '../utils';
+
+const debug = logger('shell');
 
 export enum ExtensionType {
   SYSTEM = 1,
@@ -55,3 +61,23 @@ export const restartShell = (text: string): void => {
 };
 
 export const notify = (text: string): void => imports.ui.main.notify(text);
+
+export const writeDconfData = async (schemaPath: string, data: string): Promise<void> => {
+  if (!schemaPath || !data) {
+    return;
+  }
+  const [file, ioStream] = file_new_tmp(null);
+  file.replace_contents(byteArray.fromString(data), null, false, FileCreateFlags.REPLACE_DESTINATION, null);
+  try {
+    await execute(`dconf load ${schemaPath} < ${file.get_path()}`);
+    debug(`loaded settings for ${schemaPath}`);
+  } catch (ex) {
+    debug(`cannot load settings for ${schemaPath}`);
+  }
+  file.delete(null);
+  ioStream.close_async(PRIORITY_DEFAULT, null, null);
+};
+
+export const readDconfData = async (schemaPath: string): Promise<string> => {
+  return execute(`dconf dump ${schemaPath}`);
+};
