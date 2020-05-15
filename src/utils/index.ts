@@ -34,3 +34,21 @@ export const execute = async (command: string): Promise<string> => {
     });
   });
 };
+
+export const settingsFlagsToEnumList = (flags: number): Array<any> =>
+  flags
+    .toString(2)
+    .split('')
+    .reverse()
+    .map((state) => parseInt(state, 10))
+    .map((state, index) => {
+      if (state === 1) {
+        return index;
+      }
+    })
+    .filter((value) => value !== undefined);
+
+export const enumListToSettingsFlags = (enumList: Array<any>): number =>
+  enumList.reduce((acc, enumValue) => {
+    return acc + Math.pow(2, enumValue);
+  }, 0);

@@ -1,8 +1,9 @@
 import { Context as request } from 'grest/src/app/Context/Context';
 
-import { Provider, SyncData, Status } from '../';
+import { ApiProvider, ApiOperationStatus } from '../';
+import { SyncData } from '../../data';
 
-export class Gitlab implements Provider {
+export class Gitlab implements ApiProvider {
   private static SNIPPETS_API_URL = 'https://gitlab.com/api/v4/snippets';
 
   private snippetId: string;
@@ -13,7 +14,7 @@ export class Gitlab implements Provider {
     this.userToken = userToken;
   }
 
-  async upload(syncData: SyncData): Promise<Status> {
+  async upload(syncData: SyncData): Promise<ApiOperationStatus> {
     const { status } = await request.fetch(`${Gitlab.SNIPPETS_API_URL}/${this.snippetId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
@@ -27,7 +28,7 @@ export class Gitlab implements Provider {
       method: 'PUT',
     });
 
-    return status === 200 ? Status.SUCCESS : Status.FAIL;
+    return status === 200 ? ApiOperationStatus.SUCCESS : ApiOperationStatus.FAIL;
   }
 
   async download(): Promise<SyncData> {

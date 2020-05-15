@@ -1,8 +1,9 @@
 import { Context as request } from 'grest/src/app/Context/Context';
 
-import { Provider, SyncData, Status } from '../';
+import { ApiProvider, ApiOperationStatus } from '../';
+import { SyncData } from '../../data';
 
-export class Github implements Provider {
+export class Github implements ApiProvider {
   private static GIST_API_URL = 'https://api.github.com/gists';
 
   private gistId: string;
@@ -13,7 +14,7 @@ export class Github implements Provider {
     this.userToken = userToken;
   }
 
-  async upload(syncData: SyncData): Promise<Status> {
+  async upload(syncData: SyncData): Promise<ApiOperationStatus> {
     const files = Object.keys(syncData).reduce((acc, key) => {
       return {
         ...acc,
@@ -35,7 +36,7 @@ export class Github implements Provider {
       method: 'PATCH',
     });
 
-    return status === 200 ? Status.SUCCESS : Status.FAIL;
+    return status === 200 ? ApiOperationStatus.SUCCESS : ApiOperationStatus.FAIL;
   }
 
   async download(): Promise<SyncData> {
@@ -54,9 +55,7 @@ export class Github implements Provider {
           [key]: JSON.parse(body.files[key].content),
         };
       },
-      {
-        extensions: {},
-      },
+      { extensions: {}, keybindings: {}, tweaks: {} },
     );
 
     return syncData;

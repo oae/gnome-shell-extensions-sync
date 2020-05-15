@@ -1,15 +1,9 @@
 import { EventEmitter } from 'events';
-import { SyncData, ApiEvents } from '../api';
-import {
-  setExtensionConfigData,
-  getExtensionIds,
-  removeExtension,
-  installExtension,
-  restartShell,
-  canRestartShell,
-  notify,
-} from '../shell';
+
+import { ApiEvent } from '../api';
+import { restartShell, canRestartShell, notify } from '../shell';
 import { logger } from '../utils';
+import { SyncData, Data } from '../data';
 
 export enum SyncEvents {
   SYNCHRONIZED,
@@ -19,18 +13,20 @@ const debug = logger('sync');
 
 export class Sync {
   private eventEmitter: EventEmitter;
+  private data: Data;
 
-  constructor(eventEmitter: EventEmitter) {
+  constructor(eventEmitter: EventEmitter, data: Data) {
+    this.data = data;
     this.eventEmitter = eventEmitter;
   }
 
   start(): void {
-    this.eventEmitter.on(ApiEvents.DOWNLOAD_FINISHED, this.onDownloadFinished.bind(this));
+    this.eventEmitter.on(ApiEvent.DOWNLOAD_FINISHED, this.onDownloadFinished.bind(this));
     debug('listening for download completion events');
   }
 
   stop(): void {
-    this.eventEmitter.off(ApiEvents.DOWNLOAD_FINISHED, this.onDownloadFinished.bind(this));
+    this.eventEmitter.off(ApiEvent.DOWNLOAD_FINISHED, this.onDownloadFinished.bind(this));
     debug('stopped listening for download completion events');
   }
 
@@ -39,25 +35,12 @@ export class Sync {
       return;
     }
 
-    const downloadedExtensions = Object.keys(syncData.extensions);
-    const localExtensions = getExtensionIds();
-    localExtensions.forEach(
-      (extensionId) => downloadedExtensions.indexOf(extensionId) < 0 && removeExtension(extensionId),
-    );
-
-    await Promise.all(
-      downloadedExtensions.map((extensionId) => {
-        return Object.keys(syncData.extensions[extensionId]).map((schemaPath) => {
-          return setExtensionConfigData(schemaPath, syncData.extensions[extensionId][schemaPath]);
-        });
-      }),
-    );
-
-    await Promise.all(
-      downloadedExtensions.map(
-        async (extensionId) => localExtensions.indexOf(extensionId) < 0 && installExtension(extensionId),
-      ),
-    );
+    try {
+      await this.data.use(syncData);
+    } catch (ex) {
+      notify(_('Failed to apply sync data to current system.'));
+      debug(`failed to apply sync data to system: ${ex}`);
+    }
 
     if (canRestartShell()) {
       restartShell(_('Extensions are updated. Reloading Gnome Shell'));

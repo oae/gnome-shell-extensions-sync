@@ -1,8 +1,9 @@
-import { logger } from '../utils';
-import { getCurrentExtensionSettings, ShellExtension, getCurrentExtension } from '../shell';
 import { Settings } from '@imports/Gio-2.0';
 import { Box, Builder, Entry, ComboBoxText } from '@imports/Gtk-3.0';
-import { ProviderTypes } from '../api';
+
+import { logger } from '../utils';
+import { getCurrentExtensionSettings, ShellExtension, getCurrentExtension } from '../shell';
+import { ApiProviderType } from '../api';
 
 const debug = logger('prefs');
 
@@ -75,10 +76,10 @@ class Preferences {
     this.gitlabSettingsBox.set_visible(false);
     this.githubSettingsBox.set_no_show_all(true);
     this.gitlabSettingsBox.set_no_show_all(true);
-    if (provider === ProviderTypes.GITHUB) {
+    if (provider === ApiProviderType.GITHUB) {
       this.githubSettingsBox.set_visible(true);
       this.githubSettingsBox.set_no_show_all(false);
-    } else if (provider === ProviderTypes.GITLAB) {
+    } else if (provider === ApiProviderType.GITLAB) {
       this.gitlabSettingsBox.set_visible(true);
       this.gitlabSettingsBox.set_no_show_all(false);
     }
