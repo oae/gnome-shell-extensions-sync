@@ -14,6 +14,15 @@ export class Github implements Provider {
   }
 
   async upload(syncData: SyncData): Promise<Status> {
+    const files = Object.keys(syncData).reduce((acc, key) => {
+      return {
+        ...acc,
+        [key]: {
+          content: JSON.stringify(syncData[key]),
+        },
+      };
+    }, {});
+
     const { status } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
@@ -21,11 +30,7 @@ export class Github implements Provider {
       },
       body: {
         description: 'Extensions Sync',
-        files: {
-          extensions: {
-            content: JSON.stringify(syncData.extensions),
-          },
-        },
+        files,
       },
       method: 'PATCH',
     });
@@ -42,9 +47,19 @@ export class Github implements Provider {
       method: 'GET',
     });
 
-    return {
-      extensions: JSON.parse(body.files.extensions.content),
-    };
+    const syncData: SyncData = Object.keys(body.files).reduce(
+      (acc, key) => {
+        return {
+          ...acc,
+          [key]: JSON.parse(body.files[key].content),
+        };
+      },
+      {
+        extensions: {},
+      },
+    );
+
+    return syncData;
   }
 
   getName(): string {

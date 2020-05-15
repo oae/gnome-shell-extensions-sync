@@ -22,7 +22,7 @@ export class Gitlab implements Provider {
       },
       body: {
         title: 'Extensions Sync',
-        content: JSON.stringify(syncData.extensions),
+        content: JSON.stringify(syncData),
       },
       method: 'PUT',
     });
@@ -39,9 +39,7 @@ export class Gitlab implements Provider {
       method: 'GET',
     });
 
-    return {
-      extensions: body,
-    };
+    return body;
   }
 
   getName(): string {
