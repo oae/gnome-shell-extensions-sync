@@ -11,9 +11,11 @@ export class TweaksDataProvider implements DataProvider {
   async getData(): Promise<TweaksData> {
     return {};
   }
+
   async useData(tweaksData: TweaksData): Promise<void> {
     debug(`${tweaksData}`);
   }
+
   getName(): string {
     return 'tweaks';
   }

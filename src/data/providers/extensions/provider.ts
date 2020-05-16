@@ -34,6 +34,7 @@ export class ExtensionsDataProvider implements DataProvider {
       ),
     );
   }
+
   getName(): string {
     return 'extensions';
   }
