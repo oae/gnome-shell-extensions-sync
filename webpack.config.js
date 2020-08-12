@@ -17,11 +17,13 @@ module.exports = [
     plugins: [
       new webpack.ProgressPlugin(),
       new MiniCssExtractPlugin({ filename: 'stylesheet.css' }),
-      new CopyPlugin([
-        { from: './resources/icons', to: 'icons' },
-        { from: './resources/metadata.json', to: 'metadata.json' },
-        { from: './resources/schemas', to: 'schemas' },
-      ]),
+      new CopyPlugin({
+        patterns: [
+          { from: './resources/icons', to: 'icons' },
+          { from: './resources/metadata.json', to: 'metadata.json' },
+          { from: './resources/schemas', to: 'schemas' },
+        ],
+      }),
     ],
 
     module: {
@@ -68,12 +70,7 @@ module.exports = [
       libraryExport: 'default',
     },
 
-    plugins: [
-      new webpack.ProgressPlugin(),
-      new CopyPlugin([
-        { from: './resources/ui', to: 'ui' },
-      ]),
-    ],
+    plugins: [new webpack.ProgressPlugin(), new CopyPlugin({ patterns: [{ from: './resources/ui', to: 'ui' }] })],
 
     module: {
       rules: [
