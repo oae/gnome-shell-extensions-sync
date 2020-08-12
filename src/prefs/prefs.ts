@@ -1,9 +1,10 @@
 import { Settings } from '@imports/Gio-2.0';
-import { Box, Builder, Entry, ComboBoxText } from '@imports/Gtk-3.0';
+import { Box, Builder, Entry, ComboBoxText, Switch } from '@imports/Gtk-3.0';
 
-import { logger } from '../utils';
+import { logger, settingsFlagsToEnumList, enumListToSettingsFlags } from '../utils';
 import { getCurrentExtensionSettings, ShellExtension, getCurrentExtension } from '../shell';
 import { ApiProviderType } from '../api';
+import { DataProviderType } from '../data';
 
 const debug = logger('prefs');
 
@@ -18,6 +19,9 @@ class Preferences {
   private githubGistIdEntry: Entry;
   private gitlabUserTokenEntry: Entry;
   private gitlabSnippetIdEntry: Entry;
+  private syncExtensionsSwitch: Switch;
+  private syncKeybindingsSwitch: Switch;
+  private syncTweaksSwitch: Switch;
 
   widget: Box;
 
@@ -43,6 +47,10 @@ class Preferences {
     this.gitlabUserTokenEntry = this.builder.get_object('gitlab-user-token-entry') as Entry;
     this.gitlabSnippetIdEntry = this.builder.get_object('gitlab-snippet-id-entry') as Entry;
 
+    this.syncExtensionsSwitch = this.builder.get_object('sync-extensions-switch') as Switch;
+    this.syncKeybindingsSwitch = this.builder.get_object('sync-keybindings-switch') as Switch;
+    this.syncTweaksSwitch = this.builder.get_object('sync-tweaks-switch') as Switch;
+
     if (null !== settingsBox) {
       this.widget.pack_start(settingsBox, true, true, 0);
     }
@@ -67,6 +75,25 @@ class Preferences {
 
     const gitlabUserToken = this.settings.get_string('gitlab-user-token');
     this.gitlabUserTokenEntry.set_text(gitlabUserToken);
+
+    const providerFlag = this.settings.get_flags('data-providers');
+    const providerTypes: Array<DataProviderType> = settingsFlagsToEnumList(providerFlag);
+    providerTypes.forEach((providerType) => {
+      switch (providerType) {
+        case DataProviderType.EXTENSIONS: {
+          this.syncExtensionsSwitch.set_active(true);
+          break;
+        }
+        case DataProviderType.KEYBINDINGS: {
+          this.syncKeybindingsSwitch.set_active(true);
+          break;
+        }
+        case DataProviderType.TWEAKS: {
+          this.syncTweaksSwitch.set_active(true);
+          break;
+        }
+      }
+    });
   }
 
   private onProviderChange(): void {
@@ -100,6 +127,20 @@ class Preferences {
 
     const gitlabUserToken = this.gitlabUserTokenEntry.get_text();
     this.settings.set_string('gitlab-user-token', gitlabUserToken.trim());
+
+    const providerTypes: Array<DataProviderType> = [];
+    if (this.syncExtensionsSwitch.get_active()) {
+      providerTypes.push(DataProviderType.EXTENSIONS);
+    }
+    if (this.syncKeybindingsSwitch.get_active()) {
+      providerTypes.push(DataProviderType.KEYBINDINGS);
+    }
+    if (this.syncTweaksSwitch.get_active()) {
+      providerTypes.push(DataProviderType.TWEAKS);
+    }
+
+    const providerFlag = enumListToSettingsFlags(providerTypes);
+    this.settings.set_flags('data-providers', providerFlag);
 
     this.onClose();
   }
