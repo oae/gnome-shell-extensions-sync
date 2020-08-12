@@ -3,7 +3,7 @@ import { timeout_add, PRIORITY_DEFAULT, Source } from '@imports/GLib-2.0';
 
 export const logger = (prefix: string) => (content: string): void => log(`[extensions-sync] [${prefix}] ${content}`);
 
-export const setTimeout = (func: any, millis: number): number => {
+export const setTimeout = (func: () => any, millis: number): number => {
   return timeout_add(PRIORITY_DEFAULT, millis, () => {
     func();
 
