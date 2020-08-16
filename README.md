@@ -7,9 +7,12 @@
 [![latest](https://img.shields.io/github/v/release/oae/gnome-shell-extensions-sync)](https://github.com/oae/gnome-shell-extensions-sync/releases/latest)
 [![compare](https://img.shields.io/github/commits-since/oae/gnome-shell-extensions-sync/latest/master)](https://github.com/oae/gnome-shell-extensions-sync/compare)
 
-Syncs gnome shell extensions and their configurations across all gnome installations
+Syncs gnome shell keybindings, tweaks settings and extensions with their configuration across all gnome installations
 
-![SS](https://i.imgur.com/XfXOQCB.png)
+<p align="center">
+  <img src="https://i.imgur.com/Uv5z7cy.png" />
+  <img src="https://i.imgur.com/CoN3bOG.png" />
+</p>
 
 ## Installation
 
@@ -29,6 +32,8 @@ ln -s "$PWD/dist" "$HOME/.local/share/gnome-shell/extensions/extensions-sync@elh
   https://extensions.gnome.org/extension/1486/extensions-sync/
 
 ## Usage
+
+- You can select the data types that are going to be uploaded in the settings.
 
 ## For Github
 
