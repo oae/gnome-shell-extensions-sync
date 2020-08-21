@@ -1,5 +1,5 @@
-import { Subprocess, SubprocessFlags, AsyncResult } from '@imports/Gio-2.0';
-import { timeout_add, PRIORITY_DEFAULT, Source } from '@imports/GLib-2.0';
+import { AsyncResult, Subprocess, SubprocessFlags } from '@imports/Gio-2.0';
+import { PRIORITY_DEFAULT, Source, timeout_add } from '@imports/GLib-2.0';
 
 export const logger = (prefix: string) => (content: string): void => log(`[extensions-sync] [${prefix}] ${content}`);
 

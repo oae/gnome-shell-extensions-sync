@@ -1,37 +1,13 @@
-import { EventEmitter } from 'events';
-
+import { Github } from '@esync/api/providers/github';
+import { Gitlab } from '@esync/api/providers/gitlab';
+import { Data, SyncData } from '@esync/data';
+import { getCurrentExtensionSettings, notify } from '@esync/shell';
+import { logger } from '@esync/utils';
 import { Settings } from '@imports/Gio-2.0';
-
-import { Github } from './providers/github';
-import { logger } from '../utils';
-import { notify, getCurrentExtensionSettings } from '../shell';
-import { Gitlab } from './providers/gitlab';
-import { SyncData, Data } from '../data';
+import { EventEmitter } from 'events';
+import { ApiProvider, ApiEvent, ApiOperationStatus, ApiProviderType } from './types';
 
 const debug = logger('api');
-
-export enum ApiOperationStatus {
-  SUCCESS,
-  FAIL,
-}
-
-export enum ApiEvent {
-  UPLOAD = 'UPLOAD',
-  UPLOAD_FINISHED = 'UPLOAD_FINISHED',
-  DOWNLOAD = 'DOWNLOAD',
-  DOWNLOAD_FINISHED = 'DOWNLOAD_FINISHED',
-}
-
-export enum ApiProviderType {
-  GITHUB,
-  GITLAB,
-}
-
-export interface ApiProvider {
-  upload(syncData: SyncData): Promise<ApiOperationStatus>;
-  download(): Promise<SyncData>;
-  getName(): string;
-}
 
 export class Api {
   private provider: ApiProvider;

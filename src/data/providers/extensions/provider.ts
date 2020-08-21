@@ -1,6 +1,11 @@
-import { DataProvider } from '../../../data';
-import { getAllExtensionConfigData, getExtensionIds, removeExtension, installExtension } from './utils';
-import { writeDconfData } from '../../../shell';
+import { DataProvider } from '@esync/data';
+import {
+  getAllExtensionConfigData,
+  getExtensionIds,
+  installExtension,
+  removeExtension,
+} from '@esync/data/providers/extensions/utils';
+import { writeDconfData } from '@esync/shell';
 
 export type ExtensionData = {
   [key: string]: {

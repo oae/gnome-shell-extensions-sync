@@ -1,7 +1,6 @@
+import { SyncData } from '@esync/data';
 import { Context as request } from 'grest/src/app/Context/Context';
-
-import { ApiProvider, ApiOperationStatus } from '../';
-import { SyncData } from '../../data';
+import { ApiOperationStatus, ApiProvider } from '../types';
 
 export class Gitlab implements ApiProvider {
   private static SNIPPETS_API_URL = 'https://gitlab.com/api/v4/snippets';

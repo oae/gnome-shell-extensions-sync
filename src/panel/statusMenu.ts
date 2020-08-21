@@ -1,11 +1,9 @@
-import { EventEmitter } from 'events';
-
-import { Icon } from '@imports/St-1.0';
+import { ApiEvent } from '@esync/api/types';
+import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
+import { execute, logger } from '@esync/utils';
 import { icon_new_for_string, Settings } from '@imports/Gio-2.0';
-
-import { getCurrentExtension, ShellExtension, getCurrentExtensionSettings } from '../shell';
-import { ApiEvent } from '../api';
-import { execute, logger } from '../utils';
+import { Icon } from '@imports/St-1.0';
+import { EventEmitter } from 'events';
 
 const { Button } = imports.ui.panelMenu;
 const { PopupImageMenuItem, PopupSeparatorMenuItem } = imports.ui.popupMenu;

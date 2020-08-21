@@ -1,6 +1,6 @@
-import { DataProvider } from '../';
-import { logger } from '../../utils';
-import { readDconfData, writeDconfData } from '../../shell';
+import { DataProvider } from '@esync/data';
+import { readDconfData, writeDconfData } from '@esync/shell';
+import { logger } from '@esync/utils';
 
 const debug = logger('tweaks-data-provider');
 

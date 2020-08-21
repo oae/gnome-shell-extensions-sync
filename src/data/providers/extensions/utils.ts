@@ -1,34 +1,31 @@
-import { parse } from 'fast-xml-parser';
-
+import { ExtensionType, getCurrentExtension, readDconfData, ShellExtension } from '@esync/shell';
+import { execute, logger } from '@esync/utils';
 import { File } from '@imports/Gio-2.0';
 import {
-  file_get_contents,
-  spawn_async,
-  SpawnFlags,
-  child_watch_add,
-  PRIORITY_DEFAULT,
-  spawn_close_pid,
   build_filenamev,
+  child_watch_add,
+  file_get_contents,
   get_user_data_dir,
+  PRIORITY_DEFAULT,
+  SpawnFlags,
+  spawn_async,
+  spawn_close_pid,
 } from '@imports/GLib-2.0';
-import { byteArray } from '@imports/Gjs';
 import {
-  KnownStatusCode,
   form_request_new_from_hash,
-  SessionAsync,
+  KnownStatusCode,
   ProxyResolverDefault,
   Session,
+  SessionAsync,
 } from '@imports/Soup-2.4';
-
-import { execute, logger } from '../../../utils';
-import { ShellExtension, ExtensionType, getCurrentExtension, readDconfData } from '../../../shell';
+import { parse } from 'fast-xml-parser';
 
 const debug = logger('extension-utils');
 
 const readSchemaAsJson = (schemaPath: string): any => {
   const [, contents] = file_get_contents(schemaPath);
 
-  return parse(byteArray.toString(contents), { ignoreAttributes: false });
+  return parse(imports.byteArray.toString(contents), { ignoreAttributes: false });
 };
 
 const getExtensionManager = (): any => imports.ui.main.extensionManager;

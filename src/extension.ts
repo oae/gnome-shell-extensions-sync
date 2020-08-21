@@ -1,16 +1,14 @@
+import { Api } from '@esync/api';
+import { Data } from '@esync/data';
+import { StatusMenu } from '@esync/panel/statusMenu';
+import { Sync } from '@esync/sync';
+import { logger } from '@esync/utils';
 import { EventEmitter } from 'events';
-
 import './styles/stylesheet.scss';
-
-import { StatusMenu } from './panel/statusMenu';
-import { Sync } from './sync';
-import { Api } from './api';
-import { logger } from './utils';
-import { Data } from './data';
 
 const debug = logger('extension');
 
-export class SyncExtension {
+class SyncExtension {
   private sync: Sync;
   private statusMenu: StatusMenu;
   private api: Api;

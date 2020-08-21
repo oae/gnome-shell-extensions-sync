@@ -1,8 +1,6 @@
-import { File, Settings, file_new_tmp, FileCreateFlags } from '@imports/Gio-2.0';
-import { byteArray } from '@imports/Gjs';
+import { execute, logger } from '@esync/utils';
+import { File, FileCreateFlags, file_new_tmp, Settings } from '@imports/Gio-2.0';
 import { PRIORITY_DEFAULT } from '@imports/GLib-2.0';
-
-import { execute, logger } from '../utils';
 
 const debug = logger('shell');
 
@@ -67,7 +65,7 @@ export const writeDconfData = async (schemaPath: string, data: string): Promise<
     return;
   }
   const [file, ioStream] = file_new_tmp(null);
-  file.replace_contents(byteArray.fromString(data), null, false, FileCreateFlags.REPLACE_DESTINATION, null);
+  file.replace_contents(imports.byteArray.fromString(data), null, false, FileCreateFlags.REPLACE_DESTINATION, null);
   try {
     await execute(`dconf load ${schemaPath} < ${file.get_path()}`);
     debug(`loaded settings for ${schemaPath}`);

@@ -1,7 +1,6 @@
+import { SyncData } from '@esync/data';
 import { Context as request } from 'grest/src/app/Context/Context';
-
-import { ApiProvider, ApiOperationStatus } from '../';
-import { SyncData } from '../../data';
+import { ApiOperationStatus, ApiProvider } from '../types';
 
 export class Github implements ApiProvider {
   private static GIST_API_URL = 'https://api.github.com/gists';

@@ -1,10 +1,9 @@
+import { ExtensionData, ExtensionsDataProvider } from '@esync/data/providers/extensions/provider';
+import { KeyBindingsData, KeyBindingsDataProvider } from '@esync/data/providers/keybindings';
+import { TweaksData, TweaksDataProvider } from '@esync/data/providers/tweaks';
+import { getCurrentExtensionSettings } from '@esync/shell';
+import { logger, settingsFlagsToEnumList } from '@esync/utils';
 import { Settings } from '@imports/Gio-2.0';
-
-import { logger, settingsFlagsToEnumList } from '../utils';
-import { getCurrentExtensionSettings } from '../shell';
-import { ExtensionsDataProvider, ExtensionData } from './providers/extensions/provider';
-import { KeyBindingsDataProvider, KeyBindingsData } from './providers/keybindings';
-import { TweaksDataProvider, TweaksData } from './providers/tweaks';
 
 const debug = logger('data');
 

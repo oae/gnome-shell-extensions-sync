@@ -1,9 +1,8 @@
+import { ApiEvent } from '@esync/api/types';
+import { Data, SyncData } from '@esync/data';
+import { canRestartShell, notify, restartShell } from '@esync/shell';
+import { logger } from '@esync/utils';
 import { EventEmitter } from 'events';
-
-import { ApiEvent } from '../api';
-import { restartShell, canRestartShell, notify } from '../shell';
-import { logger } from '../utils';
-import { SyncData, Data } from '../data';
 
 export enum SyncEvents {
   SYNCHRONIZED,

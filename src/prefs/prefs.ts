@@ -1,10 +1,9 @@
+import { ApiProviderType } from '@esync/api/types';
+import { DataProviderType } from '@esync/data';
+import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
+import { enumListToSettingsFlags, logger, settingsFlagsToEnumList } from '@esync/utils';
 import { Settings } from '@imports/Gio-2.0';
-import { Box, Builder, Entry, ComboBoxText, Switch } from '@imports/Gtk-3.0';
-
-import { logger, settingsFlagsToEnumList, enumListToSettingsFlags } from '../utils';
-import { getCurrentExtensionSettings, ShellExtension, getCurrentExtension } from '../shell';
-import { ApiProviderType } from '../api';
-import { DataProviderType } from '../data';
+import { Box, Builder, ComboBoxText, Entry, Switch } from '@imports/Gtk-3.0';
 
 const debug = logger('prefs');
 
