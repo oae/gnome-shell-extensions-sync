@@ -1,6 +1,9 @@
 import { SyncData } from '@esync/data';
+import { logger } from '@esync/utils';
 import { Context as request } from 'grest/src/app/Context/Context';
 import { ApiOperationStatus, ApiProvider } from '../types';
+
+const debug = logger('github');
 
 export class Github implements ApiProvider {
   private static GIST_API_URL = 'https://api.github.com/gists';
@@ -49,10 +52,15 @@ export class Github implements ApiProvider {
 
     const syncData: SyncData = Object.keys(body.files).reduce(
       (acc, key) => {
-        return {
-          ...acc,
-          [key]: JSON.parse(body.files[key].content),
-        };
+        try {
+          return {
+            ...acc,
+            [key]: JSON.parse(body.files[key].content),
+          };
+        } catch {
+          debug(`failed to parse ${key} file. skipping it...`);
+          return acc;
+        }
       },
       { extensions: {}, keybindings: {}, tweaks: {} },
     );
