@@ -1,7 +1,1 @@
-<svg version="1.1" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg">
- <g id="Icons with numbers" transform="translate(0 -.5)" style="fill-rule:evenodd;fill:#bebebe">
-  <g id="Group" transform="translate(-768,-432)" style="fill:#bebebe">
-   <path id="Rectangle 217 copy" d="m769 446h12v-3h2v5h-14zm0-3h2v3h-2zm9-5v7h-4v-7h-2l4-5 4 5z" style="fill:#bebebe"/>
-  </g>
- </g>
-</svg>
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><!-- Generator: Gravit.io --><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" style="isolation:isolate" viewBox="0 0 16 16" width="16pt" height="16pt"><defs><clipPath id="_clipPath_jegPv9FjjSVEcoFfqOBx113l98PUPKpV"><rect width="16" height="16"/></clipPath></defs><g clip-path="url(#_clipPath_jegPv9FjjSVEcoFfqOBx113l98PUPKpV)"><g><path d=" M 0 13.5 L 9.688 13.5 L 14 13.5 L 14 10.5 L 16 10.5 L 16 16 L 0 16 L 0 13.5 Z " fill-rule="evenodd" fill="rgb(190,190,190)"/><path d=" M 0 10.5 L 2 10.5 L 2 13.5 L 0 13.5 L 0 10.5 Z " fill-rule="evenodd" fill="rgb(190,190,190)"/><path d=" M 6 12.5 L 10 12.5 L 10 7.5 L 16 7.5 L 8 0 L 0 7.5 L 6 7.5 L 6 12.5 Z " fill-rule="evenodd" fill="rgb(190,190,190)"/></g></g></svg>
