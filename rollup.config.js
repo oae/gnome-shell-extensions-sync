@@ -14,9 +14,9 @@ const globals = {
   '@imports/GLib-2.0': 'imports.gi.GLib',
   '@imports/St-1.0': 'imports.gi.St',
   '@imports/Shell-0.1': 'imports.gi.Shell',
-  '@imports/Meta-6': 'imports.gi.Meta',
+  '@imports/Meta-7': 'imports.gi.Meta',
   '@imports/Wnck-3.0': 'imports.gi.Wnck',
-  '@imports/Clutter-6': 'imports.gi.Clutter',
+  '@imports/Clutter-7': 'imports.gi.Clutter',
   '@imports/Soup-2.4': 'imports.gi.Soup',
 };
 
