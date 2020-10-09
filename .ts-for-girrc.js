@@ -5,7 +5,7 @@ module.exports = {
   girDirectories: [
     '/usr/share/gir-1.0',
     '/usr/share/gnome-shell',
-    '/usr/lib/mutter-6'
+    '/usr/lib/mutter-7'
   ],
   outdir: './@types',
   ignore: []
