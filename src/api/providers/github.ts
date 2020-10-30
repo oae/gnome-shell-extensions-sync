@@ -1,11 +1,11 @@
 import { SyncData } from '@esync/data';
 import { logger } from '@esync/utils';
 import { Context as request } from 'grest/src/app/Context/Context';
-import { ApiOperationStatus, ApiProvider } from '../types';
+import { SyncOperationStatus, SyncProvider } from '../types';
 
 const debug = logger('github');
 
-export class Github implements ApiProvider {
+export class Github implements SyncProvider {
   private static GIST_API_URL = 'https://api.github.com/gists';
 
   private gistId: string;
@@ -16,7 +16,7 @@ export class Github implements ApiProvider {
     this.userToken = userToken;
   }
 
-  async upload(syncData: SyncData): Promise<ApiOperationStatus> {
+  async save(syncData: SyncData): Promise<SyncOperationStatus> {
     const files = Object.keys(syncData).reduce((acc, key) => {
       return {
         ...acc,
@@ -38,17 +38,25 @@ export class Github implements ApiProvider {
       method: 'PATCH',
     });
 
-    return status === 200 ? ApiOperationStatus.SUCCESS : ApiOperationStatus.FAIL;
+    if (status !== 200) {
+      throw new Error(`failed to save data to ${this.getName()}. Server status: ${status}`);
+    }
+
+    return status === 200 ? SyncOperationStatus.SUCCESS : SyncOperationStatus.FAIL;
   }
 
-  async download(): Promise<SyncData> {
-    const { body } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
+  async read(): Promise<SyncData> {
+    const { body, status } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
         Authorization: `token ${this.userToken}`,
       },
       method: 'GET',
     });
+
+    if (status !== 200) {
+      throw new Error(`failed to read data from ${this.getName()}. Server status: ${status}`);
+    }
 
     const syncData: SyncData = Object.keys(body.files).reduce(
       (acc, key) => {

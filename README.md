@@ -33,7 +33,7 @@ ln -s "$PWD/dist" "$HOME/.local/share/gnome-shell/extensions/extensions-sync@elh
 
 ## Usage
 
-- You can select the data types that are going to be uploaded in the settings.
+- You can select the data types that are going to be saved in the settings.
 
 ## For Github
 
@@ -46,6 +46,10 @@ ln -s "$PWD/dist" "$HOME/.local/share/gnome-shell/extensions/extensions-sync@elh
 1. Create a new snippet from [here](https://gitlab.com/snippets/new) I suggest you make it private.
 2. Create a new token from [here](https://gitlab.com/profile/personal_access_tokens). Only api scope is needed.
 3. Open extension settings, select the `Gitlab` provider and fill snippet id from first step and user token from second step.
+
+## For Local
+
+1. Select a file that has read/write permission by your active user. (default backup file is in `~/.config/extensions-sync.json`)
 
 ## Development
 

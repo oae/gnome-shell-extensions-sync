@@ -1,4 +1,4 @@
-import { ApiEvent } from '@esync/api/types';
+import { SyncEvent } from '@esync/api/types';
 import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
 import { execute, logger } from '@esync/utils';
 import { icon_new_for_string, Settings } from '@imports/Gio-2.0';
@@ -28,11 +28,11 @@ export class StatusMenu {
       this.button = this.createButton();
     }
 
-    this.eventEmitter.on(ApiEvent.UPLOAD, this.disableButton.bind(this));
-    this.eventEmitter.on(ApiEvent.DOWNLOAD, this.disableButton.bind(this));
+    this.eventEmitter.on(SyncEvent.SAVE, this.disableButton.bind(this));
+    this.eventEmitter.on(SyncEvent.READ, this.disableButton.bind(this));
 
-    this.eventEmitter.on(ApiEvent.UPLOAD_FINISHED, this.enableButton.bind(this));
-    this.eventEmitter.on(ApiEvent.DOWNLOAD_FINISHED, this.enableButton.bind(this));
+    this.eventEmitter.on(SyncEvent.SAVE_FINISHED, this.enableButton.bind(this));
+    this.eventEmitter.on(SyncEvent.READ_FINISHED, this.enableButton.bind(this));
 
     panel.addToStatusArea('extensions-sync', this.button);
     debug('showing status menu in panel');
@@ -45,11 +45,11 @@ export class StatusMenu {
     }
     if (panel.statusArea['extensions-sync']) {
       panel.statusArea['extensions-sync'].destroy();
-      this.eventEmitter.off(ApiEvent.UPLOAD, this.disableButton.bind(this));
-      this.eventEmitter.off(ApiEvent.DOWNLOAD, this.disableButton.bind(this));
+      this.eventEmitter.off(SyncEvent.SAVE, this.disableButton.bind(this));
+      this.eventEmitter.off(SyncEvent.READ, this.disableButton.bind(this));
 
-      this.eventEmitter.off(ApiEvent.UPLOAD_FINISHED, this.enableButton.bind(this));
-      this.eventEmitter.off(ApiEvent.DOWNLOAD_FINISHED, this.enableButton.bind(this));
+      this.eventEmitter.off(SyncEvent.SAVE_FINISHED, this.enableButton.bind(this));
+      this.eventEmitter.off(SyncEvent.READ_FINISHED, this.enableButton.bind(this));
       debug('removing status menu from panel');
     }
   }
@@ -61,10 +61,10 @@ export class StatusMenu {
     newButton.add_actor(newButton.icon);
 
     newButton.menu.addMenuItem(
-      this.createMenuItem(_('Upload'), 'upload', () => this.eventEmitter.emit(ApiEvent.UPLOAD)),
+      this.createMenuItem(_('Upload'), 'upload', () => this.eventEmitter.emit(SyncEvent.SAVE)),
     );
     newButton.menu.addMenuItem(
-      this.createMenuItem(_('Download'), 'download', () => this.eventEmitter.emit(ApiEvent.DOWNLOAD)),
+      this.createMenuItem(_('Download'), 'download', () => this.eventEmitter.emit(SyncEvent.READ)),
     );
     newButton.menu.addMenuItem(new PopupSeparatorMenuItem());
     newButton.menu.addMenuItem(

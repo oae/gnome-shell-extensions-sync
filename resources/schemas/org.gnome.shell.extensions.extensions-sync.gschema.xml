@@ -3,6 +3,7 @@
   <enum id="org.gnome.shell.extensions.extensions-sync.provider">
     <value nick="Github" value="0" />
     <value nick="Gitlab" value="1" />
+    <value nick="Local" value="2" />
   </enum>
 
   <flags id="org.gnome.shell.extensions.extensions-sync.data-provider">
@@ -31,6 +32,11 @@
       <default>""</default>
       <summary>Gitlab token</summary>
       <description>Gitlab token</description>
+    </key>
+    <key type="s" name="backup-file-location">
+      <default>""</default>
+      <summary>Backup file location</summary>
+      <description>Backup file location</description>
     </key>
     <key name="provider" enum="org.gnome.shell.extensions.extensions-sync.provider">
       <default>'Github'</default>

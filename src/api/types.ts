@@ -1,24 +1,25 @@
 import { SyncData } from '@esync/data';
 
-export enum ApiOperationStatus {
+export enum SyncOperationStatus {
   SUCCESS,
   FAIL,
 }
 
-export enum ApiEvent {
-  UPLOAD = 'UPLOAD',
-  UPLOAD_FINISHED = 'UPLOAD_FINISHED',
-  DOWNLOAD = 'DOWNLOAD',
-  DOWNLOAD_FINISHED = 'DOWNLOAD_FINISHED',
+export enum SyncEvent {
+  SAVE = 'SAVE',
+  SAVE_FINISHED = 'SAVE_FINISHED',
+  READ = 'READ',
+  READ_FINISHED = 'READ_FINISHED',
 }
 
-export enum ApiProviderType {
+export enum SyncProviderType {
   GITHUB,
   GITLAB,
+  LOCAL,
 }
 
-export interface ApiProvider {
-  upload(syncData: SyncData): Promise<ApiOperationStatus>;
-  download(): Promise<SyncData>;
+export interface SyncProvider {
+  save(syncData: SyncData): Promise<SyncOperationStatus>;
+  read(): Promise<SyncData>;
   getName(): string;
 }

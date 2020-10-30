@@ -1,8 +1,8 @@
 import { SyncData } from '@esync/data';
 import { Context as request } from 'grest/src/app/Context/Context';
-import { ApiOperationStatus, ApiProvider } from '../types';
+import { SyncOperationStatus, SyncProvider } from '../types';
 
-export class Gitlab implements ApiProvider {
+export class Gitlab implements SyncProvider {
   private static SNIPPETS_API_URL = 'https://gitlab.com/api/v4/snippets';
 
   private snippetId: string;
@@ -13,7 +13,7 @@ export class Gitlab implements ApiProvider {
     this.userToken = userToken;
   }
 
-  async upload(syncData: SyncData): Promise<ApiOperationStatus> {
+  async save(syncData: SyncData): Promise<SyncOperationStatus> {
     const { status } = await request.fetch(`${Gitlab.SNIPPETS_API_URL}/${this.snippetId}`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
@@ -27,17 +27,25 @@ export class Gitlab implements ApiProvider {
       method: 'PUT',
     });
 
-    return status === 200 ? ApiOperationStatus.SUCCESS : ApiOperationStatus.FAIL;
+    if (status !== 200) {
+      throw new Error(`failed to save data to ${this.getName()}. Server status: ${status}`);
+    }
+
+    return status === 200 ? SyncOperationStatus.SUCCESS : SyncOperationStatus.FAIL;
   }
 
-  async download(): Promise<SyncData> {
-    const { body } = await request.fetch(`${Gitlab.SNIPPETS_API_URL}/${this.snippetId}/raw`, {
+  async read(): Promise<SyncData> {
+    const { body, status } = await request.fetch(`${Gitlab.SNIPPETS_API_URL}/${this.snippetId}/raw`, {
       headers: {
         'User-Agent': 'Mozilla/5.0',
         'PRIVATE-TOKEN': `${this.userToken}`,
       },
       method: 'GET',
     });
+
+    if (status !== 200) {
+      throw new Error(`failed to read data from ${this.getName()}. Server status: ${status}`);
+    }
 
     return body;
   }

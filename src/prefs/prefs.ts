@@ -1,9 +1,10 @@
-import { ApiProviderType } from '@esync/api/types';
+import { SyncProviderType } from '@esync/api/types';
 import { DataProviderType } from '@esync/data';
 import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
 import { enumListToSettingsFlags, logger, settingsFlagsToEnumList } from '@esync/utils';
-import { Settings } from '@imports/Gio-2.0';
-import { Box, Builder, ComboBoxText, Entry, Switch } from '@imports/Gtk-3.0';
+import { File, FileCreateFlags, Settings } from '@imports/Gio-2.0';
+import { get_user_config_dir } from '@imports/GLib-2.0';
+import { Box, Builder, ComboBoxText, Entry, FileChooserButton, Switch } from '@imports/Gtk-3.0';
 
 const debug = logger('prefs');
 
@@ -14,10 +15,12 @@ class Preferences {
   private providerCombBoxText: ComboBoxText;
   private githubSettingsBox: Box;
   private gitlabSettingsBox: Box;
+  private localSettingsBox: Box;
   private githubUserTokenEntry: Entry;
   private githubGistIdEntry: Entry;
   private gitlabUserTokenEntry: Entry;
   private gitlabSnippetIdEntry: Entry;
+  private backupFileLocationChooser: FileChooserButton;
   private syncExtensionsSwitch: Switch;
   private syncKeybindingsSwitch: Switch;
   private syncTweaksSwitch: Switch;
@@ -37,6 +40,7 @@ class Preferences {
 
     this.githubSettingsBox = this.builder.get_object('github-settings') as Box;
     this.gitlabSettingsBox = this.builder.get_object('gitlab-settings') as Box;
+    this.localSettingsBox = this.builder.get_object('local-settings') as Box;
 
     this.providerCombBoxText = this.builder.get_object('provider-select') as ComboBoxText;
 
@@ -45,6 +49,8 @@ class Preferences {
 
     this.gitlabUserTokenEntry = this.builder.get_object('gitlab-user-token-entry') as Entry;
     this.gitlabSnippetIdEntry = this.builder.get_object('gitlab-snippet-id-entry') as Entry;
+
+    this.backupFileLocationChooser = this.builder.get_object('backup-file-location-chooser') as FileChooserButton;
 
     this.syncExtensionsSwitch = this.builder.get_object('sync-extensions-switch') as Switch;
     this.syncKeybindingsSwitch = this.builder.get_object('sync-keybindings-switch') as Switch;
@@ -75,6 +81,16 @@ class Preferences {
     const gitlabUserToken = this.settings.get_string('gitlab-user-token');
     this.gitlabUserTokenEntry.set_text(gitlabUserToken);
 
+    let backupFileLocation = this.settings.get_string('backup-file-location');
+    if (!backupFileLocation) {
+      backupFileLocation = `file://${get_user_config_dir()}/extensions-sync.json`;
+    }
+    const backupFile = File.new_for_uri(backupFileLocation);
+    if (!backupFile.query_exists(null)) {
+      backupFile.create(FileCreateFlags.PRIVATE, null);
+    }
+    this.backupFileLocationChooser.set_uri(backupFileLocation);
+
     const providerFlag = this.settings.get_flags('data-providers');
     const providerTypes: Array<DataProviderType> = settingsFlagsToEnumList(providerFlag);
     providerTypes.forEach((providerType) => {
@@ -100,14 +116,19 @@ class Preferences {
 
     this.githubSettingsBox.set_visible(false);
     this.gitlabSettingsBox.set_visible(false);
+    this.localSettingsBox.set_visible(false);
     this.githubSettingsBox.set_no_show_all(true);
     this.gitlabSettingsBox.set_no_show_all(true);
-    if (provider === ApiProviderType.GITHUB) {
+    this.localSettingsBox.set_no_show_all(true);
+    if (provider === SyncProviderType.GITHUB) {
       this.githubSettingsBox.set_visible(true);
       this.githubSettingsBox.set_no_show_all(false);
-    } else if (provider === ApiProviderType.GITLAB) {
+    } else if (provider === SyncProviderType.GITLAB) {
       this.gitlabSettingsBox.set_visible(true);
       this.gitlabSettingsBox.set_no_show_all(false);
+    } else if (provider === SyncProviderType.LOCAL) {
+      this.localSettingsBox.set_visible(true);
+      this.localSettingsBox.set_no_show_all(false);
     }
   }
 
@@ -126,6 +147,11 @@ class Preferences {
 
     const gitlabUserToken = this.gitlabUserTokenEntry.get_text();
     this.settings.set_string('gitlab-user-token', gitlabUserToken.trim());
+
+    const backupFileLocation = this.backupFileLocationChooser.get_uri();
+    if (backupFileLocation) {
+      this.settings.set_string('backup-file-location', backupFileLocation);
+    }
 
     const providerTypes: Array<DataProviderType> = [];
     if (this.syncExtensionsSwitch.get_active()) {
