@@ -13,7 +13,7 @@
     "build:extension": "yarn run build:schema",
     "build:schema": "yarn run clean:schema && glib-compile-schemas ./resources/schemas --targetdir=./dist/schemas/",
     "clean:schema": "rm -rf ./dist/schemas/*.compiled",
-    "build:package": "rm -rf './dist/extensions-sync@elhan.io.zip' && cd ./dist && zip -qr 'extensions-sync@elhan.io.zip' .",
+    "build:package": "yarn run build && rm -rf './dist/extensions-sync@elhan.io.zip' && cd ./dist && zip -qr 'extensions-sync@elhan.io.zip' .",
     "watch": "yarn run build && yarn run rollup -c --watch",
     "test": "echo \"Error: no test specified\" && exit 1",
     "lint": "eslint --ext .ts src/"
