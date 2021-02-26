@@ -11,6 +11,7 @@ export type KeyBindingsData = {
 const keyBindingsSchemaList: Array<string> = [
   '/org/gnome/mutter/keybindings/',
   '/org/gnome/mutter/wayland/keybindings/',
+  '/org/gnome/shell/keybindings/',
   '/org/gnome/desktop/wm/keybindings/',
   '/org/gnome/settings-daemon/plugins/media-keys/',
 ];
