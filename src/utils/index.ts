@@ -29,7 +29,7 @@ export const execute = async (command: string): Promise<string> => {
       } else if (stdout) {
         resolve(stdout.trim());
       } else {
-        resolve();
+        resolve('');
       }
     });
   });
