@@ -26,10 +26,10 @@ yarn build
 ln -s "$PWD/dist" "$HOME/.local/share/gnome-shell/extensions/extensions-sync@elhan.io"
 ```
 
-### From [Ego](extensions.gnome.org)
+### From [Ego](https://extensions.gnome.org)
 
-- You can install it from link below
-  https://extensions.gnome.org/extension/1486/extensions-sync/
+You can install it from [**here**](https://extensions.gnome.org/extension/1486/extensions-sync/)
+  
 
 ## Usage
 
