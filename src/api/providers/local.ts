@@ -1,21 +1,21 @@
 import { SyncData } from '@esync/data';
-import { File, FileCreateFlags } from '@imports/Gio-2.0';
+import { File, FileCreateFlags } from '@imports/gio2';
 import { SyncOperationStatus, SyncProvider } from '../types';
 
 export class Local implements SyncProvider {
-  private backupfileLocation: string;
+  private backupFileLocation: string;
 
-  constructor(backupfileLocation: string) {
-    this.backupfileLocation = backupfileLocation;
+  constructor(backupFileLocation: string) {
+    this.backupFileLocation = backupFileLocation;
   }
 
   async save(syncData: SyncData): Promise<SyncOperationStatus> {
-    if (!this.backupfileLocation) {
+    if (!this.backupFileLocation) {
       throw new Error('Please select a backup file location from preferences');
     }
-    const backupFile = File.new_for_uri(this.backupfileLocation);
+    const backupFile = File.new_for_uri(this.backupFileLocation);
     if (!backupFile.query_exists(null)) {
-      throw new Error(`Failed to backup settings. ${this.backupfileLocation} does not exist`);
+      throw new Error(`Failed to backup settings. ${this.backupFileLocation} does not exist`);
     }
 
     backupFile.replace_contents(
@@ -30,21 +30,21 @@ export class Local implements SyncProvider {
   }
 
   async read(): Promise<SyncData> {
-    const backupFile = File.new_for_uri(this.backupfileLocation);
+    const backupFile = File.new_for_uri(this.backupFileLocation);
     if (!backupFile.query_exists(null)) {
-      throw new Error(`Failed to read settings from backup. ${this.backupfileLocation} does not exist`);
+      throw new Error(`Failed to read settings from backup. ${this.backupFileLocation} does not exist`);
     }
 
     const [status, syncDataBytes] = backupFile.load_contents(null);
 
     if (!syncDataBytes.length || !status) {
-      throw new Error(`Failed to read settings from backup. ${this.backupfileLocation} is corrupted`);
+      throw new Error(`Failed to read settings from backup. ${this.backupFileLocation} is corrupted`);
     }
 
     try {
       return JSON.parse(imports.byteArray.toString(syncDataBytes));
     } catch (err) {
-      throw new Error(`${this.backupfileLocation} is not a json file`);
+      throw new Error(`${this.backupFileLocation} is not a json file`);
     }
   }
 

@@ -4,7 +4,7 @@ import { StatusMenu } from '@esync/panel/statusMenu';
 import { Sync } from '@esync/sync';
 import { logger } from '@esync/utils';
 import { EventEmitter } from 'events';
-import './styles/stylesheet.scss';
+import './styles/stylesheet.css';
 
 const debug = logger('extension');
 

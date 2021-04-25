@@ -1,23 +1,21 @@
 import typescript from '@rollup/plugin-typescript';
 import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
-import scss from 'rollup-plugin-scss';
+import styles from 'rollup-plugin-styles';
 import copy from 'rollup-plugin-copy';
 
 const buildPath = 'dist';
 
 const globals = {
-  '@imports/Gio-2.0': 'imports.gi.Gio',
-  '@imports/Gdk-3.0': 'imports.gi.Gdk',
-  '@imports/Gtk-3.0': 'imports.gi.Gtk',
-  '@imports/GdkPixbuf-2.0': 'imports.gi.GdkPixbuf',
-  '@imports/GLib-2.0': 'imports.gi.GLib',
-  '@imports/St-1.0': 'imports.gi.St',
-  '@imports/Shell-0.1': 'imports.gi.Shell',
-  '@imports/Meta-7': 'imports.gi.Meta',
-  '@imports/Wnck-3.0': 'imports.gi.Wnck',
-  '@imports/Clutter-7': 'imports.gi.Clutter',
-  '@imports/Soup-2.4': 'imports.gi.Soup',
+  '@imports/gio2': 'imports.gi.Gio',
+  '@imports/gdk4': 'imports.gi.Gdk',
+  '@imports/gtk4': 'imports.gi.Gtk',
+  '@imports/gdkpixbuf2': 'imports.gi.GdkPixbuf',
+  '@imports/glib2': 'imports.gi.GLib',
+  '@imports/st1': 'imports.gi.St',
+  '@imports/shell0': 'imports.gi.Shell',
+  '@imports/meta8': 'imports.gi.Meta',
+  '@imports/soup2': 'imports.gi.Soup',
 };
 
 const external = Object.keys(globals);
@@ -40,6 +38,7 @@ export default [
       banner,
       exports: 'default',
       globals,
+      assetFileNames: "[name][extname]",
     },
     external,
     plugins: [
@@ -50,10 +49,8 @@ export default [
       typescript({
         tsconfig: './tsconfig.json',
       }),
-      scss({
-        output: `${buildPath}/stylesheet.css`,
-        failOnError: true,
-        watch: 'src/styles',
+      styles({
+        mode: ["extract", `stylesheet.css`],
       }),
       copy({
         targets: [
@@ -85,7 +82,7 @@ export default [
         tsconfig: './tsconfig.json',
       }),
       copy({
-        targets: [{ src: './resources/ui', dest: `${buildPath}` }],
+        targets: [{ src: './resources/ui/*.glade', dest: `${buildPath}/ui` }],
       }),
     ],
   },
