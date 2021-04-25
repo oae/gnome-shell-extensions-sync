@@ -41,7 +41,6 @@ export default [
       file: `${buildPath}/extension.js`,
       format: 'iife',
       name: 'init',
-      banner,
       exports: 'default',
       globals,
       assetFileNames: "[name][extname]",
