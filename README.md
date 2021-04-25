@@ -10,8 +10,8 @@
 Syncs gnome shell keybindings, tweaks settings and extensions with their configuration across all gnome installations
 
 <p align="center">
-  <img src="https://i.imgur.com/Uv5z7cy.png" />
-  <img src="https://i.imgur.com/CoN3bOG.png" />
+  <img src="https://i.imgur.com/gmSkdbT.png" />
+  <img src="https://i.imgur.com/zSZM3Cg.png" />
 </p>
 
 ## Installation
@@ -53,8 +53,7 @@ You can install it from [**here**](https://extensions.gnome.org/extension/1486/e
 
 ## Development
 
-- This extension is written in Typescript and uses webpack to compile it into javascript.
-- Most dependencies have auto completion support thanks to [this amazing project](https://github.com/sammydre/ts-for-gjs) by [@sammydre](https://github.com/sammydre)
+- This extension is written in Typescript and uses rollup to compile it into javascript.
 - To start development, you need nodejs installed on your system;
 
   - Clone the project
@@ -69,6 +68,7 @@ You can install it from [**here**](https://extensions.gnome.org/extension/1486/e
     ```sh
     yarn install
     yarn build
+    ln -s "$PWD/dist" "$HOME/.local/share/gnome-shell/extensions/extensions-sync@elhan.io"
     ```
 
   - During development you can use `yarn watch` command to keep generated code up-to-date.
