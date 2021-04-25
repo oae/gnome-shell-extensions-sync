@@ -31,6 +31,9 @@ const prefsFooter = [
 export default [
   {
     input: 'src/extension.ts',
+    treeshake: {
+      moduleSideEffects: 'no-external'
+    },
     output: {
       file: `${buildPath}/extension.js`,
       format: 'iife',
@@ -71,6 +74,9 @@ export default [
       banner,
       footer: prefsFooter,
       globals,
+    },
+    treeshake: {
+      moduleSideEffects: 'no-external'
     },
     external,
     plugins: [
