@@ -8,6 +8,7 @@
     "noImplicitThis": true,
     "alwaysStrict": true,
     "allowJs": true,
+    "strictPropertyInitialization": false,
     "baseUrl": "./src/",
     "moduleResolution": "Node",
     "paths": {
