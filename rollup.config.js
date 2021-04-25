@@ -3,6 +3,7 @@ import { nodeResolve } from '@rollup/plugin-node-resolve';
 import commonjs from '@rollup/plugin-commonjs';
 import styles from 'rollup-plugin-styles';
 import copy from 'rollup-plugin-copy';
+import cleanup from 'rollup-plugin-cleanup';
 
 const buildPath = 'dist';
 
@@ -16,11 +17,13 @@ const globals = {
   '@imports/shell0': 'imports.gi.Shell',
   '@imports/meta8': 'imports.gi.Meta',
   '@imports/soup2': 'imports.gi.Soup',
+  '@imports/gobject2': 'imports.gi.GObject',
 };
 
 const external = Object.keys(globals);
 
 const banner = [
+  'imports.gi.versions.Gtk = \'4.0\';',
 ].join('\n');
 
 const prefsFooter = [
@@ -62,6 +65,9 @@ export default [
           { src: './resources/schemas', dest: `${buildPath}` },
         ],
       }),
+      cleanup({
+        comments: 'none'
+      }),
     ],
   },
   {
@@ -87,8 +93,8 @@ export default [
       typescript({
         tsconfig: './tsconfig.json',
       }),
-      copy({
-        targets: [{ src: './resources/ui/*.glade', dest: `${buildPath}/ui` }],
+      cleanup({
+        comments: 'none'
       }),
     ],
   },

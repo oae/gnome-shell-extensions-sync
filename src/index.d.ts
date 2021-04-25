@@ -1,4 +1,5 @@
 declare const imports: {
+  lang: any;
   ui: {
     main: {
       notify: (arg: string) => void;

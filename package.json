@@ -47,6 +47,7 @@
     "husky": "^4.3.8",
     "prettier": "^2.2.1",
     "rollup": "^2.45.2",
+    "rollup-plugin-cleanup": "^3.2.1",
     "rollup-plugin-copy": "^3.4.0",
     "rollup-plugin-styles": "^3.14.1",
     "ts-for-gir": "https://github.com/oae/ts-for-gjs",
