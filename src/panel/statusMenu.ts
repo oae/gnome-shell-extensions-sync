@@ -1,8 +1,8 @@
 import { SyncEvent } from '@esync/api/types';
 import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
 import { execute, logger } from '@esync/utils';
-import { icon_new_for_string, Settings } from '@imports/Gio-2.0';
-import { Icon } from '@imports/St-1.0';
+import { icon_new_for_string, Settings } from '@imports/gio2';
+import { Icon } from '@imports/st1';
 import { EventEmitter } from 'events';
 
 const { Button } = imports.ui.panelMenu;

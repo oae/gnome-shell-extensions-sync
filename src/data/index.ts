@@ -3,7 +3,7 @@ import { KeyBindingsData, KeyBindingsDataProvider } from '@esync/data/providers/
 import { TweaksData, TweaksDataProvider } from '@esync/data/providers/tweaks';
 import { getCurrentExtensionSettings } from '@esync/shell';
 import { logger, settingsFlagsToEnumList } from '@esync/utils';
-import { Settings } from '@imports/Gio-2.0';
+import { Settings } from '@imports/gio2';
 
 const debug = logger('data');
 

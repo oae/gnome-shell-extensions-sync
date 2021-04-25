@@ -1,6 +1,7 @@
 import { execute, logger } from '@esync/utils';
-import { File, FileCreateFlags, file_new_tmp, Settings } from '@imports/Gio-2.0';
-import { PRIORITY_DEFAULT } from '@imports/GLib-2.0';
+import { File, FileCreateFlags, file_new_tmp, Settings } from '@imports/gio2';
+import { PRIORITY_DEFAULT } from '@imports/glib2';
+import { is_wayland_compositor, restart } from '@imports/meta8';
 
 const debug = logger('shell');
 
@@ -49,12 +50,12 @@ export const getCurrentExtension = (): ShellExtension => imports.misc.extensionU
 export const getCurrentExtensionSettings = (): Settings => imports.misc.extensionUtils.getSettings();
 
 export const canRestartShell = (): boolean => {
-  return !imports.gi.Meta.is_wayland_compositor();
+  return !is_wayland_compositor();
 };
 
 export const restartShell = (text: string): void => {
-  if (!imports.gi.Meta.is_wayland_compositor()) {
-    imports.gi.Meta.restart(text);
+  if (!is_wayland_compositor()) {
+    restart(text);
   }
 };
 

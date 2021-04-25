@@ -1,6 +1,6 @@
 import { ExtensionType, getCurrentExtension, readDconfData, ShellExtension } from '@esync/shell';
 import { execute, logger } from '@esync/utils';
-import { File } from '@imports/Gio-2.0';
+import { File } from '@imports/gio2';
 import {
   build_filenamev,
   child_watch_add,
@@ -10,14 +10,14 @@ import {
   SpawnFlags,
   spawn_async,
   spawn_close_pid,
-} from '@imports/GLib-2.0';
+} from '@imports/glib2';
 import {
   form_request_new_from_hash,
   KnownStatusCode,
   ProxyResolverDefault,
   Session,
   SessionAsync,
-} from '@imports/Soup-2.4';
+} from '@imports/soup2';
 import { parse } from 'fast-xml-parser';
 
 const debug = logger('extension-utils');
@@ -195,11 +195,7 @@ export const installExtension = async (extensionId: string): Promise<void> => {
 
     const callback = (): any => {
       try {
-        const extension = getExtensionManager().createExtensionObject(
-          extensionId,
-          dir,
-          imports.misc.extensionUtils.ExtensionType.PER_USER,
-        );
+        const extension = getExtensionManager().createExtensionObject(extensionId, dir, ExtensionType.PER_USER);
         debug(`installed new extension ${extensionId}`);
         getExtensionManager().loadExtension(extension);
         if (!getExtensionManager().enableExtension(extensionId))

@@ -11,7 +11,7 @@
     "baseUrl": "./src/",
     "moduleResolution": "Node",
     "paths": {
-      "@imports/*": ["../@types/Gjs/*"],
+      "@imports/*": ["../@types/*"],
       "@esync/*": ["./*"]
     }
   }

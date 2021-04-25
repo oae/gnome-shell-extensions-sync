@@ -3,7 +3,7 @@ import { Gitlab } from '@esync/api/providers/gitlab';
 import { Data, SyncData } from '@esync/data';
 import { getCurrentExtensionSettings, notify } from '@esync/shell';
 import { logger } from '@esync/utils';
-import { Settings } from '@imports/Gio-2.0';
+import { Settings } from '@imports/gio2';
 import { EventEmitter } from 'events';
 import { Local } from './providers/local';
 import { SyncProvider, SyncEvent, SyncOperationStatus, SyncProviderType } from './types';
@@ -93,8 +93,8 @@ export class Api {
   }
 
   private createLocalProvider(): SyncProvider {
-    const backupfileLocation = this.settings.get_string('backup-file-location');
+    const backupFileLocation = this.settings.get_string('backup-file-location');
 
-    return new Local(backupfileLocation);
+    return new Local(backupFileLocation);
   }
 }

@@ -2,9 +2,9 @@ import { SyncProviderType } from '@esync/api/types';
 import { DataProviderType } from '@esync/data';
 import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
 import { enumListToSettingsFlags, logger, settingsFlagsToEnumList } from '@esync/utils';
-import { File, FileCreateFlags, Settings } from '@imports/Gio-2.0';
-import { get_user_config_dir } from '@imports/GLib-2.0';
-import { Box, Builder, ComboBoxText, Entry, FileChooserButton, Switch } from '@imports/Gtk-3.0';
+import { File, FileCreateFlags, Settings } from '@imports/gio2';
+import { get_user_config_dir } from '@imports/glib2';
+import { Box, Builder, Button, ComboBoxText, Entry, Switch } from '@imports/gtk4';
 
 const debug = logger('prefs');
 
@@ -20,7 +20,7 @@ class Preferences {
   private githubGistIdEntry: Entry;
   private gitlabUserTokenEntry: Entry;
   private gitlabSnippetIdEntry: Entry;
-  private backupFileLocationChooser: FileChooserButton;
+  private backupFileLocationChooser: Button;
   private syncExtensionsSwitch: Switch;
   private syncKeybindingsSwitch: Switch;
   private syncTweaksSwitch: Switch;
@@ -32,9 +32,7 @@ class Preferences {
     this.settings = getCurrentExtensionSettings();
     this.widget = new Box();
     this.builder = Builder.new_from_file(`${this.extension.path}/ui/prefs.glade`);
-    this.builder.connect_signals_full((builder, object, signal, handler) => {
-      object.connect(signal, this[handler].bind(this));
-    });
+    this.builder.set_current_object(this.widget);
 
     const settingsBox = this.builder.get_object('sync-settings') as Box;
 
@@ -50,16 +48,16 @@ class Preferences {
     this.gitlabUserTokenEntry = this.builder.get_object('gitlab-user-token-entry') as Entry;
     this.gitlabSnippetIdEntry = this.builder.get_object('gitlab-snippet-id-entry') as Entry;
 
-    this.backupFileLocationChooser = this.builder.get_object('backup-file-location-chooser') as FileChooserButton;
+    this.backupFileLocationChooser = this.builder.get_object('backup-file-location-chooser') as Button;
 
     this.syncExtensionsSwitch = this.builder.get_object('sync-extensions-switch') as Switch;
     this.syncKeybindingsSwitch = this.builder.get_object('sync-keybindings-switch') as Switch;
     this.syncTweaksSwitch = this.builder.get_object('sync-tweaks-switch') as Switch;
 
     if (null !== settingsBox) {
-      this.widget.pack_start(settingsBox, true, true, 0);
+      // this.widget.pack_start(settingsBox, true, true, 0);
     }
-    this.widget.get_parent_window()?.set_title(this.extension.metadata.name);
+    // this.widget.?.set_title(this.extension.metadata.name);
 
     this.initValues();
     this.onProviderChange();
@@ -89,7 +87,7 @@ class Preferences {
     if (!backupFile.query_exists(null)) {
       backupFile.create(FileCreateFlags.PRIVATE, null);
     }
-    this.backupFileLocationChooser.set_uri(backupFileLocation);
+    this.backupFileLocationChooser.set_name(backupFileLocation);
 
     const providerFlag = this.settings.get_flags('data-providers');
     const providerTypes: Array<DataProviderType> = settingsFlagsToEnumList(providerFlag);
@@ -117,18 +115,18 @@ class Preferences {
     this.githubSettingsBox.set_visible(false);
     this.gitlabSettingsBox.set_visible(false);
     this.localSettingsBox.set_visible(false);
-    this.githubSettingsBox.set_no_show_all(true);
-    this.gitlabSettingsBox.set_no_show_all(true);
-    this.localSettingsBox.set_no_show_all(true);
+    // this.githubSettingsBox.set_no_show_all(true);
+    // this.gitlabSettingsBox.set_no_show_all(true);
+    // this.localSettingsBox.set_no_show_all(true);
     if (provider === SyncProviderType.GITHUB) {
       this.githubSettingsBox.set_visible(true);
-      this.githubSettingsBox.set_no_show_all(false);
+      // this.githubSettingsBox.set_no_show_all(false);
     } else if (provider === SyncProviderType.GITLAB) {
       this.gitlabSettingsBox.set_visible(true);
-      this.gitlabSettingsBox.set_no_show_all(false);
+      // this.gitlabSettingsBox.set_no_show_all(false);
     } else if (provider === SyncProviderType.LOCAL) {
       this.localSettingsBox.set_visible(true);
-      this.localSettingsBox.set_no_show_all(false);
+      // this.localSettingsBox.set_no_show_all(false);
     }
   }
 
@@ -148,7 +146,7 @@ class Preferences {
     const gitlabUserToken = this.gitlabUserTokenEntry.get_text();
     this.settings.set_string('gitlab-user-token', gitlabUserToken.trim());
 
-    const backupFileLocation = this.backupFileLocationChooser.get_uri();
+    const backupFileLocation = this.backupFileLocationChooser.get_name();
     if (backupFileLocation) {
       this.settings.set_string('backup-file-location', backupFileLocation);
     }
@@ -171,7 +169,7 @@ class Preferences {
   }
 
   private onClose(): void {
-    this.widget.get_toplevel().destroy();
+    // this.widget.get_paren()?.destroy();
   }
 }
 
@@ -181,7 +179,6 @@ const init = (): void => {
 
 const buildPrefsWidget = (): any => {
   const prefs = new Preferences();
-  prefs.widget.show_all();
 
   return prefs.widget;
 };
