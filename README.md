@@ -43,8 +43,8 @@ You can install it from [**here**](https://extensions.gnome.org/extension/1486/e
 
 ## For Gitlab
 
-1. Create a new snippet from [here](https://gitlab.com/snippets/new) I suggest you make it private.
-2. Create a new token from [here](https://gitlab.com/profile/personal_access_tokens). Only api scope is needed.
+1. Create a new snippet from [here](https://gitlab.com/-/snippets/new) I suggest you make it private.
+2. Create a new token from [here](https://gitlab.com/-/profile/personal_access_tokens). Only api scope is needed.
 3. Open extension settings, select the `Gitlab` provider and fill snippet id from first step and user token from second step.
 
 ## For Local
