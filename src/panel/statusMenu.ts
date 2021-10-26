@@ -1,7 +1,7 @@
 import { SyncEvent } from '@esync/api/types';
-import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
+import { getCurrentExtension, ShellExtension } from '@esync/shell';
 import { execute, logger } from '@esync/utils';
-import { icon_new_for_string, Settings } from '@imports/gio2';
+import { icon_new_for_string } from '@imports/gio2';
 import { Icon } from '@imports/st1';
 import { EventEmitter } from 'events';
 
@@ -15,12 +15,10 @@ export class StatusMenu {
   private eventEmitter: EventEmitter;
   private button: any;
   private extension: ShellExtension;
-  private settings: Settings;
 
   constructor(eventEmitter: EventEmitter) {
     this.eventEmitter = eventEmitter;
     this.extension = getCurrentExtension();
-    this.settings = getCurrentExtensionSettings();
   }
 
   show(): void {
