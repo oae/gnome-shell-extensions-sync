@@ -1,7 +1,10 @@
 import { AsyncResult, Subprocess, SubprocessFlags } from '@imports/gio2';
 import { PRIORITY_DEFAULT, Source, timeout_add } from '@imports/glib2';
 
-export const logger = (prefix: string) => (content: string): void => log(`[extensions-sync] [${prefix}] ${content}`);
+export const logger =
+  (prefix: string) =>
+  (content: string): void =>
+    log(`[extensions-sync] [${prefix}] ${content}`);
 
 export const setTimeout = (func: () => any, millis: number): number => {
   return timeout_add(PRIORITY_DEFAULT, millis, () => {

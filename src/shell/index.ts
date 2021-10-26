@@ -1,7 +1,7 @@
 import { execute, logger } from '@esync/utils';
 import { File, FileCreateFlags, file_new_tmp, Settings } from '@imports/gio2';
 import { PRIORITY_DEFAULT } from '@imports/glib2';
-import { is_wayland_compositor, restart } from '@imports/meta8';
+import { is_wayland_compositor, restart } from '@imports/meta9';
 
 const debug = logger('shell');
 

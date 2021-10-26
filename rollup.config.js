@@ -15,7 +15,7 @@ const globals = {
   '@imports/glib2': 'imports.gi.GLib',
   '@imports/st1': 'imports.gi.St',
   '@imports/shell0': 'imports.gi.Shell',
-  '@imports/meta8': 'imports.gi.Meta',
+  '@imports/meta9': 'imports.gi.Meta',
   '@imports/soup2': 'imports.gi.Soup',
   '@imports/gobject2': 'imports.gi.GObject',
 };

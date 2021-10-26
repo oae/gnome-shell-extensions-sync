@@ -229,7 +229,7 @@ export const ProviderPrefs = registerClass(
         const filter = new FileFilter();
         filter.add_pattern('*.json');
         dialog.set_filter(filter);
-        dialog.set_transient_for((this.get_root() as any) as Window);
+        dialog.set_transient_for(this.get_root() as any as Window);
         dialog.connect('response', (_, response) => {
           if (response === ResponseType.OK) {
             const backupFile: File = dialog.get_file();
