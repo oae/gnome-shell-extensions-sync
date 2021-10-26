@@ -1,13 +1,13 @@
 import { Api } from '@esync/api';
 import { Data } from '@esync/data';
 import { StatusMenu } from '@esync/panel/statusMenu';
+import { loadInterfaceXML } from '@esync/shell';
 import { Sync } from '@esync/sync';
 import { logger } from '@esync/utils';
-import { EventEmitter } from 'events';
-import { loadInterfaceXML } from '@esync/shell';
-import './styles/stylesheet.css';
 import { DBus, DBusExportedObject } from '@imports/gio2';
+import { EventEmitter } from 'events';
 import { SyncEvent } from './api/types';
+import './styles/stylesheet.css';
 
 const debug = logger('extension');
 
@@ -18,6 +18,7 @@ class SyncExtension {
   private eventEmitter: EventEmitter;
   private data: Data;
   private dbus: DBusExportedObject;
+
   constructor() {
     this.eventEmitter = new EventEmitter();
     this.data = new Data();

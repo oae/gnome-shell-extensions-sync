@@ -1,7 +1,7 @@
 import { SyncEvent } from '@esync/api/types';
-import { getCurrentExtension, ShellExtension } from '@esync/shell';
+import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
 import { execute, logger } from '@esync/utils';
-import { icon_new_for_string } from '@imports/gio2';
+import { icon_new_for_string, Settings } from '@imports/gio2';
 import { Icon } from '@imports/st1';
 import { EventEmitter } from 'events';
 
@@ -15,13 +15,20 @@ export class StatusMenu {
   private eventEmitter: EventEmitter;
   private button: any;
   private extension: ShellExtension;
+  private settings: Settings;
 
   constructor(eventEmitter: EventEmitter) {
     this.eventEmitter = eventEmitter;
     this.extension = getCurrentExtension();
+    this.settings = getCurrentExtensionSettings();
+    this.settings.connect('changed::show-tray-icon', this.toggleStatusMenu.bind(this));
   }
 
   show(): void {
+    const showTrayIcon = this.settings.get_boolean('show-tray-icon');
+    if (!showTrayIcon) {
+      return;
+    }
     if (this.button === undefined) {
       this.button = this.createButton();
     }
@@ -49,6 +56,15 @@ export class StatusMenu {
       this.eventEmitter.off(SyncEvent.SAVE_FINISHED, this.enableButton.bind(this));
       this.eventEmitter.off(SyncEvent.READ_FINISHED, this.enableButton.bind(this));
       debug('removing status menu from panel');
+    }
+  }
+
+  private toggleStatusMenu(): void {
+    const showTrayIcon = this.settings.get_boolean('show-tray-icon');
+    if (showTrayIcon) {
+      this.show();
+    } else {
+      this.hide();
     }
   }
 

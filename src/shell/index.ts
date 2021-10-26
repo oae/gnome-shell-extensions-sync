@@ -59,7 +59,15 @@ export const restartShell = (text: string): void => {
   }
 };
 
-export const notify = (text: string): void => imports.ui.main.notify(text);
+export const notify = (text: string): void => {
+  const settings = getCurrentExtensionSettings();
+  const showNotifications = settings.get_boolean('show-notifications');
+  if (showNotifications) {
+    imports.ui.main.notify(text);
+  } else {
+    debug(`Notifications are hidden. Logging the content instead. Content: ${text}`);
+  }
+};
 
 export const writeDconfData = async (schemaPath: string, data: string): Promise<void> => {
   if (!schemaPath || !data) {

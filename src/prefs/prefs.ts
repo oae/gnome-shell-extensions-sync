@@ -1,6 +1,7 @@
 import { logger } from '@esync/utils';
 import { registerClass } from '@imports/gobject2';
 import { BaselinePosition, Box, Notebook, Orientation } from '@imports/gtk4';
+import { OtherPrefs } from './otherPrefs';
 import { ProviderPrefs } from './providerPrefs';
 import { SyncedDataPrefs } from './syncedDataPrefs';
 
@@ -30,6 +31,9 @@ const Preferences = registerClass(
 
       const syncedDataSettings = new SyncedDataPrefs();
       syncedDataSettings.attach(notebook);
+
+      const otherSettings = new OtherPrefs();
+      otherSettings.attach(notebook);
 
       this.append(notebook);
     }

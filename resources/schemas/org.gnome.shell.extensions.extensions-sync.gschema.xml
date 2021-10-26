@@ -48,5 +48,15 @@
       <summary>Data Providers that are going to be used.</summary>
       <description>Data Providers that are going to be used.</description>
     </key>
+    <key name="show-tray-icon" type="b">
+      <default>true</default>
+      <summary>Show Tray Icon</summary>
+      <description>Controls the visibility of the tray icon.</description>
+    </key>
+    <key name="show-notifications" type="b">
+      <default>true</default>
+      <summary>Show Notifications</summary>
+      <description>Controls the visibility of the notifications.</description>
+    </key>
   </schema>
 </schemalist>
