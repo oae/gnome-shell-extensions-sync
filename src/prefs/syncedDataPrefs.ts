@@ -29,7 +29,7 @@ export const SyncedDataPrefs = registerClass(
     createSettingRows(label: string, description: string, dataProviderType: DataProviderType): void {
       const providerFlag = this.settings.get_flags('data-providers');
       const providerTypes: Array<DataProviderType> = settingsFlagsToEnumList(providerFlag);
-      const extensionsRow = new ListBoxRow({
+      const row = new ListBoxRow({
         halign: Align.FILL,
         valign: Align.FILL,
         widthRequest: 100,
@@ -85,8 +85,8 @@ export const SyncedDataPrefs = registerClass(
       rowContainer.append(rowLabelContainer);
       rowContainer.append(rowSwitch);
 
-      extensionsRow.set_child(rowContainer);
-      this.append(extensionsRow);
+      row.set_child(rowContainer);
+      this.append(row);
     }
   },
 );
