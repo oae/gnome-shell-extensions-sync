@@ -1,7 +1,6 @@
 # Extensions Sync
 
 [![ts](https://badgen.net/badge/icon/typescript?icon=typescript&label)](#)
-[![deps](https://img.shields.io/david/oae/gnome-shell-extensions-sync)](#)
 [![opensource](https://badges.frapsoft.com/os/v1/open-source.png?v=103)](#)
 [![licence](https://badges.frapsoft.com/os/gpl/gpl.png?v=103)](https://github.com/oae/gnome-shell-extensions-sync/blob/master/LICENSE)
 [![latest](https://img.shields.io/github/v/release/oae/gnome-shell-extensions-sync)](https://github.com/oae/gnome-shell-extensions-sync/releases/latest)

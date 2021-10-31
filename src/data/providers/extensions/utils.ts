@@ -3,6 +3,7 @@ import { execute, logger } from '@esync/utils';
 import { File } from '@imports/gio2';
 import {
   build_filenamev,
+  ByteArray,
   child_watch_add,
   file_get_contents,
   get_user_data_dir,
@@ -11,13 +12,7 @@ import {
   spawn_async,
   spawn_close_pid,
 } from '@imports/glib2';
-import {
-  form_request_new_from_hash,
-  KnownStatusCode,
-  ProxyResolverDefault,
-  Session,
-  SessionAsync,
-} from '@imports/soup2';
+import { form_encode_hash, Message, Session, Status, status_get_phrase, URI } from '@imports/soup2';
 import { parse } from 'fast-xml-parser';
 
 const debug = logger('extension-utils');
@@ -39,7 +34,7 @@ const getExtensionSchemas = async (extensionId: string): Promise<any> => {
   try {
     stdout = await execute(`find -L ${extension.path} -iname "*.xml" -exec grep -l "schemalist" {} +`);
   } catch (ex) {
-    debug(`error occured while getting extension schemas: ${ex}`);
+    debug(`error occurred while getting extension schemas: ${ex}`);
     return {};
   }
 
@@ -143,41 +138,35 @@ export const removeExtension = (extensionId: string): void => {
   debug(`removed extension ${extensionId}`);
 };
 
-const gotExtensionZipFile = (session, message, uuid, dir, callback, errback): any => {
-  if (message.status_code != KnownStatusCode.OK) {
-    errback('DownloadExtensionError', message.status_code);
-    return;
-  }
-
-  try {
-    if (!dir.query_exists(null)) dir.make_directory_with_parents(null);
-  } catch (e) {
-    errback('CreateExtensionDirectoryError', e);
-    return;
+export const extractExtensionArchive = (bytes: ByteArray, dir: File, callback: any) => {
+  if (!dir.query_exists(null)) {
+    dir.make_directory_with_parents(null);
   }
 
   const [file, stream] = File.new_tmp('XXXXXX.shell-extension.zip');
-  const contents = message.response_body.flatten().get_as_bytes();
-  stream.output_stream.write_bytes(contents, null);
+
+  stream.output_stream.write_bytes(bytes, null);
   stream.close(null);
   const [success, pid] = spawn_async(
     null,
-    ['unzip', '-uod', dir.get_path(), '--', file.get_path()],
+    ['unzip', '-uod', `${dir.get_path()}`, '--', `${file.get_path()}`],
     null,
     SpawnFlags.SEARCH_PATH | SpawnFlags.DO_NOT_REAP_CHILD,
     null,
   );
 
   if (!success) {
-    errback('ExtractExtensionError');
-    return;
+    throw new Error('failed to extract extension');
   }
   if (pid) {
     child_watch_add(PRIORITY_DEFAULT, pid, (o, status) => {
       spawn_close_pid(pid);
 
-      if (status != 0) errback('ExtractExtensionError');
-      else callback();
+      if (status != 0) {
+        throw new Error('failed to extract extension');
+      } else {
+        callback();
+      }
     });
   }
 };
@@ -185,36 +174,34 @@ const gotExtensionZipFile = (session, message, uuid, dir, callback, errback): an
 export const installExtension = async (extensionId: string): Promise<void> => {
   return new Promise((resolve) => {
     const params = { shell_version: imports.misc.config.PACKAGE_VERSION };
+    const soupUri = new URI(`https://extensions.gnome.org/download-extension/${extensionId}.shell-extension.zip`);
+    soupUri.set_query(form_encode_hash(params));
 
-    const url = `https://extensions.gnome.org/download-extension/${extensionId}.shell-extension.zip`;
-    const message = form_request_new_from_hash('GET', url, params);
+    const message = Message.new_from_uri('GET', soupUri);
 
-    const dir = File.new_for_path(
-      build_filenamev([build_filenamev([get_user_data_dir(), 'gnome-shell']), 'extensions', extensionId]),
-    );
+    const dir = File.new_for_path(build_filenamev([get_user_data_dir(), 'gnome-shell', 'extensions', extensionId]));
 
-    const callback = (): any => {
-      try {
-        const extension = getExtensionManager().createExtensionObject(extensionId, dir, ExtensionType.PER_USER);
-        debug(`installed new extension ${extensionId}`);
-        getExtensionManager().loadExtension(extension);
-        if (!getExtensionManager().enableExtension(extensionId))
-          throw new Error(`Cannot add ${extensionId} to enabled extensions gsettings key`);
-      } catch (e) {
-        removeExtension(extensionId);
-        resolve();
-        return;
-      }
-
+    try {
+      const httpSession = new Session();
+      httpSession.queue_message(message, () => {
+        const { statusCode } = message;
+        const phrase = status_get_phrase(statusCode);
+        if (statusCode !== Status.OK) {
+          throw new Error(`Unexpected response: ${phrase}`);
+        }
+        const bytes = message.response_body.flatten().get_as_bytes();
+        extractExtensionArchive(bytes, dir, () => {
+          const extension = getExtensionManager().createExtensionObject(extensionId, dir, ExtensionType.PER_USER);
+          getExtensionManager().loadExtension(extension);
+          if (!getExtensionManager().enableExtension(extensionId)) {
+            throw new Error(`Cannot enable ${extensionId}`);
+          }
+          resolve();
+        });
+      });
+    } catch (e) {
+      debug(`error occurred during installation of ${extensionId}. Error: ${e}`);
       resolve();
-    };
-
-    const _httpSession = new SessionAsync({ ssl_use_system_ca_file: true });
-
-    Session.prototype.add_feature.call(_httpSession, new ProxyResolverDefault());
-
-    _httpSession.queue_message(message, (session) => {
-      gotExtensionZipFile(session, message, extensionId, dir, callback, resolve);
-    });
+    }
   });
 };

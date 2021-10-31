@@ -6,6 +6,9 @@ import {
   removeExtension,
 } from '@esync/data/providers/extensions/utils';
 import { writeDconfData } from '@esync/shell';
+import { logger } from '@esync/utils';
+
+const debug = logger('extension-provider');
 
 export type ExtensionData = {
   [key: string]: {
@@ -24,6 +27,8 @@ export class ExtensionsDataProvider implements DataProvider {
     localExtensions.forEach(
       (extensionId) => downloadedExtensions.indexOf(extensionId) < 0 && removeExtension(extensionId),
     );
+
+    debug(`downloading extensions: ${downloadedExtensions}`);
 
     await Promise.all(
       downloadedExtensions.map((extensionId) => {

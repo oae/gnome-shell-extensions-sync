@@ -95,7 +95,7 @@ export const loadInterfaceXML = (iface: string): any => {
 
   try {
     const [, bytes] = file.load_contents(null);
-    return new TextDecoder().decode(bytes);
+    return imports.byteArray.toString(bytes);
   } catch (e) {
     log(`Failed to load D-Bus interface ${iface}`);
   }

@@ -280,6 +280,16 @@ fabric.properties
 .idea/**/markdown-navigator.xml
 .idea/**/markdown-navigator/
 
+### Vagrant ###
+# General
+.vagrant/
+
+# Log files (if you are creating logs in debug mode, uncomment this)
+# *.log
+
+### Vagrant Patch ###
+*.box
+
 # End of https://www.gitignore.io/api/node,linux,webstorm,sublimetext,visualstudiocode
 
 # ts-for-gjs output

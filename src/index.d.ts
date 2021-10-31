@@ -34,6 +34,3 @@ declare const imports: {
 };
 declare const log: (arg: any) => void;
 declare const _: (arg: string) => string;
-declare class TextDecoder {
-  decode: (content: any) => any;
-}
