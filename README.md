@@ -8,10 +8,9 @@
 
 Syncs gnome shell keybindings, tweaks settings and extensions with their configuration across all gnome installations
 
-<p align="center">
-  <img src="https://i.imgur.com/gmSkdbT.png" />
-  <img src="https://i.imgur.com/zSZM3Cg.png" />
-</p>
+|               Provider               |              Synced Data             |            Other Settings            |
+|:------------------------------------:|:------------------------------------:|:------------------------------------:|
+| ![](https://i.imgur.com/4Sv3Jus.png) | ![](https://i.imgur.com/Ii6Q8w3.png) | ![](https://i.imgur.com/OvDy80f.png) |
 
 ## Installation
 
@@ -36,14 +35,14 @@ You can install it from [**here**](https://extensions.gnome.org/extension/1486/e
 
 ## For Github
 
-1. Create a new gist from [here](https://gist.github.com/) I suggest you make it secret.
-2. Create a new token from [here](https://github.com/settings/tokens/new). Only gist permission is needed since we edit the gists.
+1. Create a new gist from [here](https://gist.github.com/) I suggest you make it secret. You will need the gist id for this. You can find it in the url after username. For example on gist url `https://gist.github.com/username/f545156c0083f7eaefa44ab69df4ec37`, gist id will be `f545156c0083f7eaefa44ab69df4ec37`. [Guide](https://docs.github.com/en/get-started/writing-on-github/editing-and-sharing-content-with-gists/creating-gists)
+2. Create a new token from [here](https://github.com/settings/tokens/new). Only **gist permission** is needed since we edit the gists. [Guide](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token)
 3. Open extension settings, select the `Github` provider and fill gist id from first step and user token from second step.
 
 ## For Gitlab
 
-1. Create a new snippet from [here](https://gitlab.com/-/snippets/new) I suggest you make it private.
-2. Create a new token from [here](https://gitlab.com/-/profile/personal_access_tokens). Only api scope is needed.
+1. Create a new snippet from [here](https://gitlab.com/-/snippets/new) I suggest you make it private. You will need the snippet id for this. You can find it in the url. For example on snippet url `https://gitlab.com/-/snippets/324234234`, snippet id will be `324234234`. [Guide](https://docs.gitlab.com/ee/user/snippets.html#create-snippets)
+2. Create a new token from [here](https://gitlab.com/-/profile/personal_access_tokens). Only **api scope** is needed. [Guide](https://docs.gitlab.com/ee/user/profile/personal_access_tokens.html#create-a-personal-access-token)
 3. Open extension settings, select the `Gitlab` provider and fill snippet id from first step and user token from second step.
 
 ## For Local
