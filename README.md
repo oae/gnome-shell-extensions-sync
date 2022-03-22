@@ -49,6 +49,15 @@ You can install it from [**here**](https://extensions.gnome.org/extension/1486/e
 
 1. Select a file that has read/write permission by your active user. (default backup file is in `~/.config/extensions-sync.json`)
 
+## Cli Usage
+
+You can trigger upload download operations using busctl.
+
+```sh
+busctl --user call org.gnome.Shell /io/elhan/ExtensionsSync io.elhan.ExtensionsSync save # uploads to server
+busctl --user call org.gnome.Shell /io/elhan/ExtensionsSync io.elhan.ExtensionsSync read # downloads to pc
+```
+
 ## Development
 
 - This extension is written in Typescript and uses rollup to compile it into javascript.
