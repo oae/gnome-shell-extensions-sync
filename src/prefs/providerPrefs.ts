@@ -1,7 +1,7 @@
 import { SyncProviderType } from '@esync/api/types';
-import { File, FileCreateFlags } from '@imports/gio2';
-import { get_user_config_dir } from '@imports/glib2';
-import { registerClass } from '@imports/gobject2';
+import { File, FileCreateFlags, FilePrototype } from '@gi-types/gio2';
+import { get_user_config_dir } from '@gi-types/glib2';
+import { registerClass } from '@gi-types/gobject2';
 import {
   Align,
   Box,
@@ -15,8 +15,8 @@ import {
   Orientation,
   ResponseType,
   Window,
-} from '@imports/gtk4';
-import { PrefsTab } from './prefsTab';
+} from '@gi-types/gtk4';
+import { PrefsTab } from '@esync/prefs/prefsTab';
 
 export const ProviderPrefs = registerClass(
   {},
@@ -232,12 +232,14 @@ export const ProviderPrefs = registerClass(
         dialog.set_transient_for(this.get_root() as any as Window);
         dialog.connect('response', (_, response) => {
           if (response === ResponseType.OK) {
-            const backupFile: File = dialog.get_file();
-            if (!backupFile.query_exists(null)) {
-              backupFile.create(FileCreateFlags.PRIVATE, null);
+            const backupFile: FilePrototype | null = dialog.get_file();
+            if (backupFile) {
+              if (!backupFile.query_exists(null)) {
+                backupFile.create(FileCreateFlags.PRIVATE, null);
+              }
+              locationButton.label = backupFile.get_uri();
+              this.settings.set_string('backup-file-location', backupFile.get_uri());
             }
-            locationButton.label = backupFile.get_uri();
-            this.settings.set_string('backup-file-location', backupFile.get_uri());
           }
 
           dialog.destroy();

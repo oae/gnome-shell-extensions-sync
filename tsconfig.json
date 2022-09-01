@@ -12,7 +12,6 @@
     "baseUrl": "./src/",
     "moduleResolution": "Node",
     "paths": {
-      "@imports/*": ["../@types/*"],
       "@esync/*": ["./*"]
     }
   }

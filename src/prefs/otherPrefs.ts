@@ -1,6 +1,6 @@
-import { registerClass } from '@imports/gobject2';
-import { Align, Box, Label, ListBoxRow, Orientation, Switch } from '@imports/gtk4';
-import { PrefsTab } from './prefsTab';
+import { registerClass } from '@gi-types/gobject2';
+import { Align, Box, Label, ListBoxRow, Orientation, Switch } from '@gi-types/gtk4';
+import { PrefsTab } from '@esync/prefs/prefsTab';
 
 export const OtherPrefs = registerClass(
   {},

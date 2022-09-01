@@ -1,9 +1,9 @@
 import { logger } from '@esync/utils';
-import { registerClass } from '@imports/gobject2';
-import { BaselinePosition, Box, Notebook, Orientation } from '@imports/gtk4';
-import { OtherPrefs } from './otherPrefs';
-import { ProviderPrefs } from './providerPrefs';
-import { SyncedDataPrefs } from './syncedDataPrefs';
+import { registerClass } from '@gi-types/gobject2';
+import { BaselinePosition, Box, Notebook, Orientation } from '@gi-types/gtk4';
+import { OtherPrefs } from '@esync/prefs/otherPrefs';
+import { ProviderPrefs } from '@esync/prefs/providerPrefs';
+import { SyncedDataPrefs } from '@esync/prefs/syncedDataPrefs';
 
 const debug = logger('prefs');
 

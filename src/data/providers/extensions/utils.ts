@@ -1,6 +1,6 @@
 import { ExtensionType, getCurrentExtension, readDconfData, ShellExtension } from '@esync/shell';
 import { execute, logger } from '@esync/utils';
-import { File } from '@imports/gio2';
+import { File } from '@gi-types/gio2';
 import {
   build_filenamev,
   ByteArray,
@@ -11,8 +11,8 @@ import {
   SpawnFlags,
   spawn_async,
   spawn_close_pid,
-} from '@imports/glib2';
-import { form_encode_hash, Message, Session, Status, status_get_phrase, URI } from '@imports/soup2';
+} from '@gi-types/glib2';
+import { form_encode_hash, Message, Session, Status, status_get_phrase, URI } from '@gi-types/soup2';
 import { parse } from 'fast-xml-parser';
 
 const debug = logger('extension-utils');
@@ -145,7 +145,7 @@ export const extractExtensionArchive = (bytes: ByteArray, dir: File, callback: a
 
   const [file, stream] = File.new_tmp('XXXXXX.shell-extension.zip');
 
-  stream.output_stream.write_bytes(bytes, null);
+  stream.output_stream.write_bytes(bytes as any, null);
   stream.close(null);
   const [success, pid] = spawn_async(
     null,
@@ -174,7 +174,7 @@ export const extractExtensionArchive = (bytes: ByteArray, dir: File, callback: a
 export const installExtension = async (extensionId: string): Promise<void> => {
   return new Promise((resolve) => {
     const params = { shell_version: imports.misc.config.PACKAGE_VERSION };
-    const soupUri = new URI(`https://extensions.gnome.org/download-extension/${extensionId}.shell-extension.zip`);
+    const soupUri = URI.new(`https://extensions.gnome.org/download-extension/${extensionId}.shell-extension.zip`);
     soupUri.set_query(form_encode_hash(params));
 
     const message = Message.new_from_uri('GET', soupUri);
@@ -190,7 +190,7 @@ export const installExtension = async (extensionId: string): Promise<void> => {
           throw new Error(`Unexpected response: ${phrase}`);
         }
         const bytes = message.response_body.flatten().get_as_bytes();
-        extractExtensionArchive(bytes, dir, () => {
+        extractExtensionArchive(bytes as any, dir, () => {
           const extension = getExtensionManager().createExtensionObject(extensionId, dir, ExtensionType.PER_USER);
           getExtensionManager().loadExtension(extension);
           if (!getExtensionManager().enableExtension(extensionId)) {

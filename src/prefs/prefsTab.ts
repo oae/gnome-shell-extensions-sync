@@ -1,7 +1,7 @@
 import { getCurrentExtension, getCurrentExtensionSettings, ShellExtension } from '@esync/shell';
-import { Settings } from '@imports/gio2';
-import { registerClass } from '@imports/gobject2';
-import { Box, Label, Notebook } from '@imports/gtk4';
+import { Settings } from '@gi-types/gio2';
+import { registerClass } from '@gi-types/gobject2';
+import { Box, Label, Notebook } from '@gi-types/gtk4';
 
 export const PrefsTab = registerClass(
   {},

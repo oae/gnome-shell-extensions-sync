@@ -4,9 +4,9 @@ import { StatusMenu } from '@esync/panel/statusMenu';
 import { loadInterfaceXML } from '@esync/shell';
 import { Sync } from '@esync/sync';
 import { logger } from '@esync/utils';
-import { DBus, DBusExportedObject } from '@imports/gio2';
+import { DBus, DBusExportedObject } from '@gi-types/gio2';
 import { EventEmitter } from 'events';
-import { SyncEvent } from './api/types';
+import { SyncEvent } from '@esync/api/types';
 import './styles/stylesheet.css';
 
 const debug = logger('extension');

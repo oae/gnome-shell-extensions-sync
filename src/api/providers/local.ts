@@ -1,5 +1,5 @@
 import { SyncData } from '@esync/data';
-import { File, FileCreateFlags } from '@imports/gio2';
+import { File, FileCreateFlags } from '@gi-types/gio2';
 import { SyncOperationStatus, SyncProvider } from '../types';
 
 export class Local implements SyncProvider {

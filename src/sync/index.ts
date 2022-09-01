@@ -1,5 +1,5 @@
 import { SyncEvent } from '@esync/api/types';
-import { Data, SyncData } from '@esync//data';
+import { Data, SyncData } from '@esync/data';
 import { canRestartShell, notify, restartShell } from '@esync/shell';
 import { EventEmitter } from 'events';
 import { logger } from '@esync/utils';

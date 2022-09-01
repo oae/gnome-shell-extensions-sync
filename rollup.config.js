@@ -8,16 +8,16 @@ import cleanup from 'rollup-plugin-cleanup';
 const buildPath = 'dist';
 
 const globals = {
-  '@imports/gio2': 'imports.gi.Gio',
-  '@imports/gdk4': 'imports.gi.Gdk',
-  '@imports/gtk4': 'imports.gi.Gtk',
-  '@imports/gdkpixbuf2': 'imports.gi.GdkPixbuf',
-  '@imports/glib2': 'imports.gi.GLib',
-  '@imports/st1': 'imports.gi.St',
-  '@imports/shell0': 'imports.gi.Shell',
-  '@imports/meta10': 'imports.gi.Meta',
-  '@imports/soup2': 'imports.gi.Soup',
-  '@imports/gobject2': 'imports.gi.GObject',
+  '@gi-types/gio2': 'imports.gi.Gio',
+  '@gi-types/gdk4': 'imports.gi.Gdk',
+  '@gi-types/gtk4': 'imports.gi.Gtk',
+  '@gi-types/gdkpixbuf2': 'imports.gi.GdkPixbuf',
+  '@gi-types/glib2': 'imports.gi.GLib',
+  '@gi-types/st1': 'imports.gi.St',
+  '@gi-types/shell0': 'imports.gi.Shell',
+  '@gi-types/meta10': 'imports.gi.Meta',
+  '@gi-types/soup2': 'imports.gi.Soup',
+  '@gi-types/gobject2': 'imports.gi.GObject',
 };
 
 const external = Object.keys(globals);

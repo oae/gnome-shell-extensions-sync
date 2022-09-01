@@ -3,10 +3,10 @@ import { Gitlab } from '@esync/api/providers/gitlab';
 import { Data, SyncData } from '@esync/data';
 import { getCurrentExtensionSettings, notify } from '@esync/shell';
 import { logger } from '@esync/utils';
-import { Settings } from '@imports/gio2';
+import { Settings } from '@gi-types/gio2';
 import { EventEmitter } from 'events';
-import { Local } from './providers/local';
-import { SyncProvider, SyncEvent, SyncOperationStatus, SyncProviderType } from './types';
+import { Local } from '@esync/api/providers/local';
+import { SyncProvider, SyncEvent, SyncOperationStatus, SyncProviderType } from '@esync/api/types';
 
 const debug = logger('api');
 

@@ -1,5 +1,5 @@
-import { AsyncResult, Subprocess, SubprocessFlags } from '@imports/gio2';
-import { PRIORITY_DEFAULT, Source, timeout_add } from '@imports/glib2';
+import { AsyncResult, Subprocess, SubprocessFlags } from '@gi-types/gio2';
+import { PRIORITY_DEFAULT, Source, timeout_add } from '@gi-types/glib2';
 
 export const logger =
   (prefix: string) =>
