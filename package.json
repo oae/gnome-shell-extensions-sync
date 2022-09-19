@@ -39,7 +39,7 @@
     "@gi-types/gtk4": "^4.6.1",
     "@gi-types/meta10": "^10.0.1",
     "@gi-types/shell0": "^0.1.1",
-    "@gi-types/soup2": "^2.74.1",
+    "@gi-types/soup3": "^3.0.1",
     "@gi-types/st1": "^1.0.1",
     "@gi.ts/cli": "^1.5.7",
     "@gi.ts/lib": "^1.5.9",
@@ -66,7 +66,6 @@
   },
   "dependencies": {
     "events": "^3.3.0",
-    "fast-xml-parser": "^3.21.0",
-    "grest": "^1.2.0"
+    "fast-xml-parser": "^3.21.0"
   }
 }

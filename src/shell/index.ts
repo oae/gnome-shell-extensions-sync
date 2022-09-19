@@ -82,7 +82,7 @@ export const writeDconfData = async (schemaPath: string, data: string): Promise<
     debug(`cannot load settings for ${schemaPath}`);
   }
   file.delete(null);
-  ioStream.close_async(PRIORITY_DEFAULT, null, null);
+  ioStream.close_async(PRIORITY_DEFAULT, null);
 };
 
 export const readDconfData = async (schemaPath: string): Promise<string> => {

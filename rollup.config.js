@@ -16,15 +16,11 @@ const globals = {
   '@gi-types/st1': 'imports.gi.St',
   '@gi-types/shell0': 'imports.gi.Shell',
   '@gi-types/meta10': 'imports.gi.Meta',
-  '@gi-types/soup2': 'imports.gi.Soup',
+  '@gi-types/soup3': 'imports.gi.Soup',
   '@gi-types/gobject2': 'imports.gi.GObject',
 };
 
 const external = Object.keys(globals);
-
-const banner = [
-  'imports.gi.versions.Gtk = \'4.0\';',
-].join('\n');
 
 const prefsFooter = [
   'var init = prefs.init;',
@@ -77,7 +73,6 @@ export default [
       format: 'iife',
       exports: 'default',
       name: 'prefs',
-      banner,
       footer: prefsFooter,
       globals,
     },

@@ -1,6 +1,7 @@
 import { SyncData } from '@esync/data';
 import { logger } from '@esync/utils';
-import { Context as request } from 'grest/src/app/Context/Context';
+import { Bytes, PRIORITY_DEFAULT } from '@gi-types/glib2';
+import { Message, Session, Status, status_get_phrase } from '@gi-types/soup3';
 import { SyncOperationStatus, SyncProvider } from '../types';
 
 const debug = logger('github');
@@ -10,10 +11,12 @@ export class Github implements SyncProvider {
 
   private gistId: string;
   private userToken: string;
+  private session: Session;
 
   constructor(gistId: string, userToken: string) {
     this.gistId = gistId;
     this.userToken = userToken;
+    this.session = new Session();
   }
 
   async save(syncData: SyncData): Promise<SyncOperationStatus> {
@@ -26,37 +29,44 @@ export class Github implements SyncProvider {
       };
     }, {});
 
-    const { status } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        Authorization: `token ${this.userToken}`,
-      },
-      body: {
-        description: 'Extensions Sync',
-        files,
-      },
-      method: 'PATCH',
+    const message = Message.new('PATCH', `${Github.GIST_API_URL}/${this.gistId}`);
+    message.request_headers.append('User-Agent', 'Mozilla/5.0');
+    message.request_headers.append('Authorization', `token ${this.userToken}`);
+    const requestBody = JSON.stringify({
+      description: 'Extensions Sync',
+      files,
     });
+    message.set_request_body_from_bytes('application/json', new Bytes(imports.byteArray.fromString(requestBody)));
+    await this.session.send_and_read_async(message, PRIORITY_DEFAULT, null);
 
-    if (status !== 200) {
-      throw new Error(`failed to save data to ${this.getName()}. Server status: ${status}`);
+    const { statusCode } = message;
+    const phrase = status_get_phrase(statusCode);
+    if (statusCode !== Status.OK) {
+      throw new Error(`failed to save data to ${this.getName()}. Server status: ${phrase}`);
     }
 
-    return status === 200 ? SyncOperationStatus.SUCCESS : SyncOperationStatus.FAIL;
+    return SyncOperationStatus.SUCCESS;
   }
 
   async read(): Promise<SyncData> {
-    const { body, status } = await request.fetch(`${Github.GIST_API_URL}/${this.gistId}`, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0',
-        Authorization: `token ${this.userToken}`,
-      },
-      method: 'GET',
-    });
+    const message = Message.new('GET', `${Github.GIST_API_URL}/${this.gistId}`);
+    message.request_headers.append('User-Agent', 'Mozilla/5.0');
+    message.request_headers.append('Authorization', `token ${this.userToken}`);
 
-    if (status !== 200) {
-      throw new Error(`failed to read data from ${this.getName()}. Server status: ${status}`);
+    const bytes = await this.session.send_and_read_async(message, PRIORITY_DEFAULT, null);
+    const { statusCode } = message;
+    const phrase = status_get_phrase(statusCode);
+    if (statusCode !== Status.OK) {
+      throw new Error(`failed to read data from ${this.getName()}. Server status: ${phrase}`);
     }
+
+    const data = bytes.get_data();
+    if (data === null) {
+      throw new Error(`failed to read data from ${this.getName()}. Empty response`);
+    }
+
+    const json = imports.byteArray.toString(data);
+    const body = JSON.parse(json);
 
     const syncData: SyncData = Object.keys(body.files).reduce(
       (acc, key) => {
